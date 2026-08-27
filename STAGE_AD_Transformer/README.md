@@ -24,7 +24,7 @@ multi-task Transformer.
 | 05 | `scripts/05_train_baselines.py` | train/test splits | baseline metrics |
 | 06 | `scripts/06_predict.py` | fine-tuned checkpoint + input data | prediction CSV/Parquet |
 | 07 | `scripts/07_run_ablations.py` | checkpoint + test split | ablation metrics |
-| 08 | `scripts/08_generate_final_deliverables.py` | predictions + metrics | ten result tables |
+| 08 | `scripts/08_generate_final_deliverables.py` | predictions + metrics | result tables |
 | 09 | `scripts/09_make_nature_figures.py` | data + results | PNG/PDF figures |
 
 ## Installation
