@@ -1,0 +1,102 @@
+#!/bin/bash
+#PBS -l walltime=00:08:00
+#PBS -l mem=5GB
+#PBS -l ncpus=1
+#PBS -J 0-6
+
+# This script uses LDSC to munge the METAL meta-analysis results (all cohorts, and each of LOO)
+
+### Environment ###
+
+#module load ldsc/20190815
+
+### Preamble ###
+
+# Edit below variables for your specific LDSC
+
+directory=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/01_Munge/Males/
+
+reference=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/LDSC_reference/
+
+files=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Males/Metaanalysis_ad_male_*_QCed_rsID.txt
+
+#name=$(echo ${files} | sed 's|/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Males/||' | sed 's|_QCed_rsID.txt||')
+
+
+### Submit script ###
+
+source activate LDSC
+cd ${directory}
+
+for FILE in ${files}
+do
+name=$(echo ${FILE} | sed 's|/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Males/||' | sed 's|_QCed_rsID.txt||')
+
+munge_sumstats.py \
+ --sumstats ${FILE} \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp rsID_build37 \
+ --ignore MarkerName \
+ --N-col N_TOTAL \
+ --a1 Allele1 \
+ --a2 Allele2 \
+ --p P \
+ --signed-sumstats Effect,0 \
+ --out ${name}_LDSC_munged
+
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+nohup bash 01_Munge_metal_sumstats_male.sh >01_Munge_metal_sumstats_male.log 2>&1 &
+```
+
+
+
+
+
+
+
+
+
+
+zcat Metaanalysis_ad_male_AllCohorts_LDSC_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > Metaanalysis_ad_male_AllCohorts_LDSC_munged.cleaned.sumstats.gz
+
+
+
+
+

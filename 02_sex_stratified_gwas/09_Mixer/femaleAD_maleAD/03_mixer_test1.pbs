@@ -1,0 +1,113 @@
+##############################################################################
+#!/bin/bash
+#PBS -N mixer_test1
+#PBS -l select=1:ncpus=10:mem=38G:avx2=True
+#PBS -l walltime=08:00:00
+#PBS -J 1-40
+#PBS -o /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/mixer_test1/pbs
+#PBS -e /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/mixer_test1/pbs
+
+#module load mixer/20240923
+conda activate mixer
+module load singularity
+
+export MIXER_SIF=/media/desk15/iy2120/Genomic_tools/mixer/mixer.sif
+export MIXER_PY="singularity exec --home $PWD:/home ${MIXER_SIF} python3 /tools/mixer/precimed/mixer.py"
+
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/
+
+VARIABLES=($(awk -v var=$PBS_ARRAY_INDEX 'NR==var' array_values.txt))
+trait=${VARIABLES[0]}
+rep=${VARIABLES[1]}
+
+${MIXER_PY} test1 \
+--lib $MIXER_ROOT/src/build/lib/libbgmg.so \
+--bim-file /media/desk15/iy2120/Genomic_tools/mixer/reference/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.@.bim \
+--ld-file /media/desk15/iy2120/Genomic_tools/mixer/reference/ldsc/1000G_EUR_Phase3_plink/1000G.EUR.QC.@.run4.ld \
+--load-params-file /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/mixer_fit1/${trait}.fit.rep${rep}.json \
+--trait1-file ./munged_sumstats/${trait}.sumstats.gz \
+--threads 10 \
+--out ${trait}.test.rep${rep}
+##############################################################################
+
+
+
+
+#!/bin/bash
+set -euo pipefail
+
+# Environment
+source activate mixer
+
+
+MIXER_SIF="/media/desk15/iy2120/Genomic_tools/mixer/mixer.sif"
+
+export MIXER_PY="singularity exec \
+  --bind /media/desk15/iy2120:/media/desk15/iy2120 \
+  ${MIXER_SIF} \
+  python3 /tools/mixer/precimed/mixer.py"
+
+# Working directory
+REFDIR="/media/desk15/iy2120/Genomic_tools/mixer/reference/ldsc/1000G_EUR_Phase3_plink"
+WORKDIR="/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD"
+cd "${WORKDIR}"
+
+# Output directory
+OUTDIR="${WORKDIR}/mixer_test1"
+mkdir -p "${OUTDIR}"
+
+# Read array_values.txt in a loop
+while read -r trait rep; do
+
+    # Skip empty lines
+    if [[ -z "${trait:-}" || -z "${rep:-}" ]]; then
+        continue
+    fi
+
+    echo "======================================"
+    echo "Running MiXeR test1"
+    echo "Trait: ${trait}"
+    echo "Rep:   ${rep}"
+    echo "======================================"
+
+    ${MIXER_PY} test1 \
+        --bim-file "${REFDIR}/1000G.EUR.QC.@.bim" \
+        --ld-file "${REFDIR}/1000G.EUR.QC.@.run4.ld" \
+        --load-params-file "${WORKDIR}/mixer_fit1/${trait}.fit.rep${rep}.json" \
+        --trait1-file "${WORKDIR}/munged_sumstats/${trait}.csv.gz" \
+        --threads 16 \
+        --out "${OUTDIR}/${trait}.test.rep${rep}"
+
+    echo "Finished: ${trait} rep${rep}"
+    echo
+
+done < array_values.txt
+
+
+
+
+
+
+
+
+
+
+
+
+```
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/
+
+tmux new -s 03_mixer_test1
+bash 03_mixer_test1.sh > 03_mixer_test1.log 2>&1
+''' Ctrl + b
+Release the keys, then press d '''
+tmux ls
+tmux attach -t 03_mixer_test1
+ps -u $USER -f | grep -E "mixer.py|singularity|03_mixer_test1.sh" | grep -v grep
+htop -u iy2120
+```
+
+
+
+
+

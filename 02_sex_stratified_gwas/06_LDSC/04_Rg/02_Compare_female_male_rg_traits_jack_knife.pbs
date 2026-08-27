@@ -1,0 +1,138 @@
+#!/bin/bash
+#PBS -l walltime=00:30:00
+#PBS -l mem=10GB
+#PBS -l ncpus=1
+
+# This script compares the rg of female MDD with a trait and rg of male MDD with the same trait using jack knife method
+
+### Environment ###
+
+#module load R/4.3.1
+
+### Preamble ###
+
+directory=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/04_Rg/jack_knife/
+
+infile_rg1=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/04_Rg/Females/rg_femaleAD_correlation_table.txt
+
+infile_rg2=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/04_Rg/Males/rg_maleAD_correlation_table.txt
+
+trait=(
+  "AdamsMDD_sumstats"
+  "ADHD_sumstats"
+  "Bipolar_sumstats"
+  "PTSD_sumstats"
+  "Schizophrenia_sumstats"
+  "BMI_sumstats"
+  "Waist_to_hip_ratio_sumstats"
+  "EA_sumstats"
+  "Metabolic_syndrome_sumstats"
+  "Drinks_per_week_sumstats"
+  "Ever_smoked_regularly_sumstats"
+  "BMI_female_sumstats"
+  "BMI_male_sumstats"
+)
+
+# Corresponding identifiers to search in filenames
+
+trait_files=(
+  "Adams_Full_EUR_2025"
+  "ADHD2022_iPSYCH_deCODE_PGC"
+  "Bipolar_Neff"
+  "PTSD_Neff"
+  "Schizophrenia_Neff"
+  "Meta-analysis_Locke_et_al_plus_UKBiobank"
+  "fat-distn.giant.ukbb.meta-analysis.whradjbmi.combined"
+  "EA4_additive_excl_23andMe"
+  "GCST90444487"
+  "GSCAN_DrnkWk_2022_GWAS_SUMMARY_STATS_EUR"
+  "GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR"
+  "bmi.giant-ukbb.meta-analysis.females.23May2018"
+  "bmi.giant-ukbb.meta-analysis.males.23May2018"
+)
+
+# Build file arrays
+
+female_dir=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/04_Rg/Females
+
+male_dir=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/04_Rg/Males
+
+for i in "${!trait[@]}"
+do
+
+  t="${trait_files[$i]}"
+
+  infile_c1[$i]=$(ls ${female_dir}/*${t}*.gencov.delete)
+  infile_c2[$i]=$(ls ${male_dir}/*${t}*.gencov.delete)
+
+  infile_hsq1[$i]="${infile_c1[$i]/gencov/hsq1}"
+  infile_hsq2[$i]="${infile_c1[$i]/gencov/hsq2}"
+
+  infile_hsq3[$i]="${infile_c2[$i]/gencov/hsq1}"
+  infile_hsq4[$i]="${infile_c2[$i]/gencov/hsq2}"
+
+done
+
+### Run script ###
+
+cd ${directory}
+
+for PBS_ARRAY_INDEX in "${!trait[@]}"
+do
+
+  echo "=================================================="
+  echo "Running job index: ${PBS_ARRAY_INDEX}"
+  echo "Trait: ${trait[${PBS_ARRAY_INDEX}]}"
+
+  echo "Using infile_c1: ${infile_c1[${PBS_ARRAY_INDEX}]}"
+  echo "Using infile_c2: ${infile_c2[${PBS_ARRAY_INDEX}]}"
+
+  echo "Using infile_hsq1: ${infile_hsq1[${PBS_ARRAY_INDEX}]}"
+  echo "Using infile_hsq2: ${infile_hsq2[${PBS_ARRAY_INDEX}]}"
+
+  echo "Using infile_hsq3: ${infile_hsq3[${PBS_ARRAY_INDEX}]}"
+  echo "Using infile_hsq4: ${infile_hsq4[${PBS_ARRAY_INDEX}]}"
+
+  Rscript --vanilla /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/02_Compare_female_male_rg_traits_jack_knife.R \
+    ${infile_rg1} \
+    ${infile_rg2} \
+    ${infile_c1[${PBS_ARRAY_INDEX}]} \
+    ${infile_c2[${PBS_ARRAY_INDEX}]} \
+    ${infile_hsq1[${PBS_ARRAY_INDEX}]} \
+    ${infile_hsq2[${PBS_ARRAY_INDEX}]} \
+    ${infile_hsq3[${PBS_ARRAY_INDEX}]} \
+    ${infile_hsq4[${PBS_ARRAY_INDEX}]} \
+    ${trait[${PBS_ARRAY_INDEX}]} \
+    ${directory}
+
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/
+nohup bash 02_Compare_female_male_rg_traits_jack_knife.sh >02_Compare_female_male_rg_traits_jack_knife.log 2>&1 &
+```
+
+
+
+
+
+
+
+
+
+

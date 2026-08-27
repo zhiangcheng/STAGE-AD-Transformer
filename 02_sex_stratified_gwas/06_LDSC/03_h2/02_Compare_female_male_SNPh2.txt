@@ -1,0 +1,15 @@
+Results
+
+Females: 0.6888 (0.0407)
+
+Males: 0.5580 (0.0667)
+
+
+Z-score = h2(female) - h2(male) / sqrt(SE^2(female) + SE^2(male))
+        = (0.6888 - 0.5580) / sqrt((0.0407)^2 + (0.0667)^2)
+        = 1.673984
+
+P-value from a standard normal distribution
+In R:
+p <- 2 * pnorm(1.673984, mean = 0, sd = 1, lower.tail = FALSE) 
+p = 0.09413374

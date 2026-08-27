@@ -1,0 +1,41 @@
+awk '
+NR==1 {
+    for (i=1; i<=NF; i++) {
+        col[$i]=i
+    }
+
+    BETA=col["BETA"]
+    SE=col["SE"]
+    P=col["P"]
+    N=col["N"]
+
+    print
+    next
+}
+{
+    beta=$BETA
+    se=$SE
+    p=$P
+    n=$N
+
+    # Remove invalid values such as NA, nan, ., -nane-nan, and Inf
+    if (beta=="NA" || beta=="nan" || beta=="NaN" || beta=="." || beta=="Inf" || beta=="-Inf") next
+    if (se=="NA"   || se=="nan"   || se=="NaN"   || se=="."   || se=="Inf"   || se=="-Inf") next
+    if (p=="NA"    || p=="nan"    || p=="NaN"    || p=="."    || p=="Inf"    || p=="-Inf" || p=="-nane-nan") next
+    if (n=="NA"    || n=="nan"    || n=="NaN"    || n=="."    || n=="Inf"    || n=="-Inf") next
+
+    # Replace zeros
+    if ($SE == 0) $SE = 1e-6
+    if ($N  == 0) $N  = 1
+    if ($P  == 0) $P  = 1e-30
+
+    print
+}
+' Metaanalysis_ad_female_AllCohorts_QCed_rsID.txt > Metaanalysis_ad_female_AllCohorts_QCed_rsID_clean.txt
+
+
+
+
+
+
+grep -- "-nane-nan" Metaanalysis_ad_female_AllCohorts_QCed_rsID_clean.txt

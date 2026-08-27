@@ -1,0 +1,548 @@
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/04_Rg/data/
+source activate LDSC
+
+reference=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/LDSC_reference/
+
+************************************************************************
+
+munge_sumstats.py \
+ --sumstats raw_gwas/Adams_Full_EUR_2025_FromIMB.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp ID \
+ --N-col NEFF \
+ --a1 EA \
+ --a2 NEA \
+ --p PVAL \
+ --signed-sumstats BETA,0 \
+ --out Adams_Full_EUR_2025_FromIMB_munged
+
+zcat Adams_Full_EUR_2025_FromIMB_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > Adams_Full_EUR_2025_FromIMB_munged.cleaned.sumstats.gz
+************************************************************************
+
+in=raw_gwas/ADHD2022_iPSYCH_deCODE_PGC.meta.gz
+out=raw_gwas/ADHD2022_iPSYCH_deCODE_PGC.tsv
+gzip -dc "$in" \
+| awk 'BEGIN{FS="[[:space:]]+"; OFS="\t"}
+       NR==1 {
+         print "SNP","A1","A2","BETA","SE","P","FRQ","INFO","N","CHR","BP","Nca","Nco"
+         next
+       }
+
+       NF>=14 {
+         CHR=$1
+         SNP=$2
+         BP=$3
+         A1=$4
+         A2=$5
+         FRQ_A=$6
+         FRQ_U=$7
+         INFO=$8
+         OR=$9
+         SE=$10
+         P=$11
+         Nca=$13
+         Nco=$14
+
+         if ( \
+           SNP!="" && SNP!="NA" && SNP!="." && \
+           A1~/^[ACGT]$/ && \
+           A2~/^[ACGT]$/ && \
+           OR!="" && OR!="NA" && OR!="." && OR>0 && \
+           SE!="" && SE!="NA" && SE!="." && SE>0 && \
+           P!="" && P!="NA" && P!="." && P>0 && P<=1 && \
+           Nca!="" && Nca!="NA" && Nca!="." && Nca>0 && \
+           Nco!="" && Nco!="NA" && Nco!="." && Nco>0 && \
+           FRQ_U!="" && FRQ_U!="NA" && FRQ_U!="." && \
+           INFO!="" && INFO!="NA" && INFO!="." \
+         ) {
+           BETA=log(OR)
+           N=4*Nca*Nco/(Nca+Nco)
+
+           print SNP,A1,A2,BETA,SE,P,FRQ_U,INFO,N,CHR,BP,Nca,Nco
+         }
+       }' \
+> "$out"
+
+
+munge_sumstats.py \
+ --sumstats raw_gwas/ADHD2022_iPSYCH_deCODE_PGC.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp SNP \
+ --N-col N \
+ --a1 A1 \
+ --a2 A2 \
+ --p P \
+ --signed-sumstats BETA,0 \
+ --out ADHD2022_iPSYCH_deCODE_PGC_munged
+
+zcat ADHD2022_iPSYCH_deCODE_PGC_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > ADHD2022_iPSYCH_deCODE_PGC_munged.cleaned.sumstats.gz
+************************************************************************
+
+in=raw_gwas/ANX_EUR.txt
+out=raw_gwas/ANX_EUR.tsv
+
+awk 'BEGIN{FS="[[:space:]]+"; OFS=" "}
+     NR==1 {
+       print $0, "N"
+       next
+     }
+     NF>0 {
+       print $0, 201334
+     }' "$in" > "$out"
+
+munge_sumstats.py \
+ --sumstats raw_gwas/ANX_EUR.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp SNP \
+ --N-col N \
+ --a1 A1 \
+ --a2 A2 \
+ --p P \
+ --signed-sumstats BETA,0 \
+ --out ANX_EUR_munged
+
+zcat ANX_EUR_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > ANX_EUR_munged.cleaned.sumstats.gz
+************************************************************************
+
+munge_sumstats.py \
+ --sumstats raw_gwas/Bipolar_Neff.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp ID \
+ --N-col NCON \
+ --a1 A1 \
+ --a2 A2 \
+ --p PVAL \
+ --signed-sumstats BETA,0 \
+ --out Bipolar_Neff_munged
+
+zcat Bipolar_Neff_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > Bipolar_Neff_munged.cleaned.sumstats.gz
+************************************************************************
+
+munge_sumstats.py \
+ --sumstats raw_gwas/PTSD_Neff.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp ID \
+ --N-col NEFF \
+ --a1 A1 \
+ --a2 A2 \
+ --p P \
+ --signed-sumstats Z,0 \
+ --out PTSD_Neff_munged
+
+zcat PTSD_Neff_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > PTSD_Neff_munged.cleaned.sumstats.gz
+************************************************************************
+
+munge_sumstats.py \
+ --sumstats raw_gwas/Schizophrenia_Neff.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp ID \
+ --N-col NEFF \
+ --a1 A1 \
+ --a2 A2 \
+ --p PVAL \
+ --signed-sumstats BETA,0 \
+ --out Schizophrenia_Neff_munged
+
+zcat Schizophrenia_Neff_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > Schizophrenia_Neff_munged.cleaned.sumstats.gz
+************************************************************************
+
+munge_sumstats.py \
+ --sumstats raw_gwas/Meta-analysis_Locke_et_al_plus_UKBiobank_2018_UPDATED.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp SNP \
+ --N-col N \
+ --a1 Tested_Allele \
+ --a2 Other_Allele \
+ --p P \
+ --signed-sumstats BETA,0 \
+ --out Meta-analysis_Locke_et_al_plus_UKBiobank_2018_UPDATED_munged
+
+zcat Meta-analysis_Locke_et_al_plus_UKBiobank_2018_UPDATED_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > Meta-analysis_Locke_et_al_plus_UKBiobank_2018_UPDATED_munged.cleaned.sumstats.gz
+************************************************************************
+
+in=raw_gwas/bmi.giant-ukbb.meta-analysis.females.23May2018.tsv
+out=raw_gwas/bmi.giant-ukbb.meta-analysis.females.23May2018.cleanSNP.tsv
+
+awk 'BEGIN{FS="[[:space:]]+"; OFS="\t"}
+     NR==1 {
+       $1=$1
+       print
+       next
+     }
+     NF>0 {
+       split($3, a, ":")
+       $3=a[1]
+       print
+     }' "$in" > "$out"
+
+munge_sumstats.py \
+ --sumstats raw_gwas/bmi.giant-ukbb.meta-analysis.females.23May2018.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp SNP \
+ --N-col N \
+ --a1 Tested_Allele \
+ --a2 Other_Allele \
+ --p P \
+ --signed-sumstats BETA,0 \
+ --out bmi.giant-ukbb.meta-analysis.females.23May2018_munged
+
+zcat bmi.giant-ukbb.meta-analysis.females.23May2018_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > bmi.giant-ukbb.meta-analysis.females.23May2018_munged.cleaned.sumstats.gz
+************************************************************************
+
+in=raw_gwas/bmi.giant-ukbb.meta-analysis.males.23May2018.tsv
+out=raw_gwas/bmi.giant-ukbb.meta-analysis.males.23May2018.cleanSNP.tsv
+
+awk 'BEGIN{FS="[[:space:]]+"; OFS="\t"}
+     NR==1 {
+       $1=$1
+       print
+       next
+     }
+     NF>0 {
+       split($3, a, ":")
+       $3=a[1]
+       print
+     }' "$in" > "$out"
+
+munge_sumstats.py \
+ --sumstats raw_gwas/bmi.giant-ukbb.meta-analysis.males.23May2018.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp SNP \
+ --N-col N \
+ --a1 Tested_Allele \
+ --a2 Other_Allele \
+ --p P \
+ --signed-sumstats BETA,0 \
+ --out bmi.giant-ukbb.meta-analysis.males.23May2018_munged
+
+zcat bmi.giant-ukbb.meta-analysis.males.23May2018_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > bmi.giant-ukbb.meta-analysis.males.23May2018_munged.cleaned.sumstats.gz
+************************************************************************
+
+in=raw_gwas/fat-distn.giant.ukbb.meta-analysis.whradjbmi.combined.tsv
+out=raw_gwas/fat-distn.giant.ukbb.meta-analysis.whradjbmi.combined.cleanSNP.tsv
+
+awk 'BEGIN{FS="[[:space:]]+"; OFS="\t"}
+     NR==1 {
+       $1=$1
+       print
+       next
+     }
+     NF>0 {
+       split($3, a, ":")
+       $3=a[1]
+       print
+     }' "$in" > "$out"
+
+munge_sumstats.py \
+ --sumstats raw_gwas/fat-distn.giant.ukbb.meta-analysis.whradjbmi.combined.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp SNP \
+ --N-col N \
+ --a1 Tested_Allele \
+ --a2 Other_Allele \
+ --p P \
+ --signed-sumstats BETA,0 \
+ --out fat-distn.giant.ukbb.meta-analysis.whradjbmi.combined_munged
+
+zcat fat-distn.giant.ukbb.meta-analysis.whradjbmi.combined_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > fat-distn.giant.ukbb.meta-analysis.whradjbmi.combined_munged.cleaned.sumstats.gz
+************************************************************************
+
+munge_sumstats.py \
+ --sumstats raw_gwas/EA4_additive_excl_23andMe.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp rsID \
+ --N-col N \
+ --a1 Effect_allele \
+ --a2 Other_allele \
+ --p P \
+ --signed-sumstats Beta,0 \
+ --out EA4_additive_excl_23andMe_munged
+
+zcat EA4_additive_excl_23andMe_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > EA4_additive_excl_23andMe_munged.cleaned.sumstats.gz
+************************************************************************
+
+munge_sumstats.py \
+ --sumstats raw_gwas/GSCAN_DrnkWk_2022_GWAS_SUMMARY_STATS_EUR.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp RSID \
+ --N-col N \
+ --a1 EFFECT_ALLELE \
+ --a2 OTHER_ALLELE \
+ --p P \
+ --signed-sumstats BETA,0 \
+ --out GSCAN_DrnkWk_2022_GWAS_SUMMARY_STATS_EUR_munged
+
+zcat GSCAN_DrnkWk_2022_GWAS_SUMMARY_STATS_EUR_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > GSCAN_DrnkWk_2022_GWAS_SUMMARY_STATS_EUR_munged.cleaned.sumstats.gz
+************************************************************************
+
+munge_sumstats.py \
+ --sumstats raw_gwas/GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp RSID \
+ --N-col N \
+ --a1 EFFECT_ALLELE \
+ --a2 OTHER_ALLELE \
+ --p P \
+ --signed-sumstats BETA,0 \
+ --out GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR_munged
+
+zcat GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > GSCAN_SmkInit_2022_GWAS_SUMMARY_STATS_EUR_munged.cleaned.sumstats.gz
+************************************************************************
+
+munge_sumstats.py \
+ --sumstats raw_gwas/GCST90444487.tsv \
+ --merge-alleles ${reference}w_hm3.noMHC.snplist \
+ --snp rs_id \
+ --N-col N \
+ --a1 effect_allele \
+ --a2 other_allele \
+ --p p_value \
+ --signed-sumstats beta,0 \
+ --out GCST90444487_munged
+
+zcat GCST90444487_munged.sumstats.gz \
+| awk 'BEGIN{FS=OFS="\t"}
+       NR==1 {
+         print
+         for(i=1;i<=NF;i++) col[$i]=i
+         next
+       }
+       {
+         if ( \
+           $col["SNP"]!="" && $col["SNP"]!="NA" && $col["SNP"]!="." && \
+           $col["A1"]!=""  && $col["A1"]!="NA"  && $col["A1"]!="."  && \
+           $col["A2"]!=""  && $col["A2"]!="NA"  && $col["A2"]!="."  && \
+           $col["Z"]!=""   && $col["Z"]!="NA"   && $col["Z"]!="."   && \
+           $col["N"]!=""   && $col["N"]!="NA"   && $col["N"]!="."   \
+         ) print
+       }' \
+| gzip > GCST90444487_munged.cleaned.sumstats.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

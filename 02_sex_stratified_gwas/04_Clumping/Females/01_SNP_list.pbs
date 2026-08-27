@@ -1,0 +1,8 @@
+# First make a list of SNPs to input for clumping: SNP (CHR:BP:A1:A2) P (p-value)
+
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/030_Clumping/Females
+
+awk 'NR==1 {print "SNP", "P"} NR>1 {print $1, $10}' \
+/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Females/Metaanalysis_ad_female_AllCohorts_QCed_rsID.txt  > \
+Metaanalysis_ad_female_AllCohorts_QCed_rsID_SNPs.txt
+

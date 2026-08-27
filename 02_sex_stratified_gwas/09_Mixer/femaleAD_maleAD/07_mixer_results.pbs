@@ -1,0 +1,166 @@
+##############################################################################
+#!/bin/bash
+#PBS -N mixer_results
+#PBS -l select=1:ncpus=1:mem=5GB:avx2=True
+#PBS -l walltime=01:00:00
+#PBS -J 1-6
+#PBS -o /path/mixer_ukb/results_bivariate/pbs
+#PBS -e /path/mixer_ukb/results_bivariate/pbs
+
+module load mixer/20230505
+cd $PBS_O_WORKDIR
+
+VARIABLES=($(awk -v var=$PBS_ARRAY_INDEX 'NR==var' array_values.txt))
+trait1=${VARIABLES[0]}
+trait2=${VARIABLES[1]}
+
+python3 $MIXER_ROOT/precimed/mixer_figures.py combine \
+--json /path/mixer_ukb/mixer_fit2/${trait1}.${trait2}.fit.rep@.json \
+--out ${trait1}.${trait2}.fit
+
+python3 $MIXER_ROOT/precimed/mixer_figures.py combine \
+--json /path/mixer_ukb/mixer_test2/${trait1}.${trait2}.test.rep@.json \
+--out ${trait1}.${trait2}.test
+
+python3 $MIXER_ROOT/precimed/mixer_figures.py two \
+--json-fit ${trait1}.${trait2}.fit.json \
+--json-test ${trait1}.${trait2}.test.json \
+--statistic mean std \
+--out ${trait1}.${trait2}
+##############################################################################
+
+
+#!/bin/bash
+set -euo pipefail
+
+source activate mixer
+
+MIXER_SIF="/media/desk15/iy2120/Genomic_tools/mixer/mixer.sif"
+
+export MIXER_FIGURE="singularity exec \
+  --bind /media/desk15/iy2120:/media/desk15/iy2120 \
+  ${MIXER_SIF} \
+  python3 /tools/mixer/precimed/mixer_figures.py"
+
+WORKDIR="/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD"
+
+OUTDIR="${WORKDIR}/results_bivariate"
+mkdir -p "${OUTDIR}"
+
+cd "${OUTDIR}"
+
+
+while read -r trait1 trait2 rep; do
+
+    # Remove Windows line endings
+    trait1=$(echo "${trait1:-}" | tr -d '\r')
+    trait2=$(echo "${trait2:-}" | tr -d '\r')
+    rep=$(echo "${rep:-}" | tr -d '\r')
+
+    # Perform a complete missing-value check
+    if [[ -z "$trait1" || -z "$trait2" || -z "$rep" ]]; then
+        continue
+    fi
+
+    echo "======================================"
+    echo "Running MiXeR univariate"
+    echo "Trait: ${trait1}"
+    echo "Trait: ${trait2}"
+    echo "Rep:   ${rep}"
+    echo "======================================"
+
+    ${MIXER_FIGURE} combine \
+             --json "${WORKDIR}/mixer_fit2/${trait1}.${trait2}.fit.rep@.json" \
+             --out ${trait1}.${trait2}.fit
+
+    echo "Finished: ${trait1} ${trait2}"
+    echo
+
+done < "${WORKDIR}/array_values_bivariate.txt"
+
+
+while read -r trait1 trait2 rep; do
+
+    # Remove Windows line endings
+    trait1=$(echo "${trait1:-}" | tr -d '\r')
+    trait2=$(echo "${trait2:-}" | tr -d '\r')
+    rep=$(echo "${rep:-}" | tr -d '\r')
+
+    # Perform a complete missing-value check
+    if [[ -z "$trait1" || -z "$trait2" || -z "$rep" ]]; then
+        continue
+    fi
+
+    echo "======================================"
+    echo "Running MiXeR univariate"
+    echo "Trait: ${trait1}"
+    echo "Trait: ${trait2}"
+    echo "Rep:   ${rep}"
+    echo "======================================"
+
+    ${MIXER_FIGURE} combine \
+             --json "${WORKDIR}/mixer_test2/${trait1}.${trait2}.test.rep@.json" \
+             --out ${trait1}.${trait2}.test
+
+    echo "Finished: ${trait1} ${trait2}"
+    echo
+
+done < "${WORKDIR}/array_values_bivariate.txt"
+
+
+while read -r trait1 trait2 rep; do
+
+    # Remove Windows line endings
+    trait1=$(echo "${trait1:-}" | tr -d '\r')
+    trait2=$(echo "${trait2:-}" | tr -d '\r')
+    rep=$(echo "${rep:-}" | tr -d '\r')
+
+    # Perform a complete missing-value check
+    if [[ -z "$trait1" || -z "$trait2" || -z "$rep" ]]; then
+        continue
+    fi
+
+    echo "======================================"
+    echo "Running MiXeR univariate"
+    echo "Trait: ${trait1}"
+    echo "Trait: ${trait2}"
+    echo "Rep:   ${rep}"
+    echo "======================================"
+
+    ${MIXER_FIGURE} two \
+             --json-fit "${trait1}.${trait2}.fit.json" \
+             --json-test "${trait1}.${trait2}.test.json" \
+             --statistic mean std \
+             --out ${trait1}.${trait2}
+
+    echo "Finished: ${trait1} ${trait2}"
+    echo
+
+done < "${WORKDIR}/array_values_bivariate.txt"
+
+
+
+
+
+
+
+
+
+
+
+
+```
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/
+
+tmux new -s 07_mixer_results
+bash 07_mixer_results.sh > 07_mixer_results.log 2>&1
+''' Ctrl + b
+Release the keys, then press d '''
+tmux ls
+tmux attach -t 07_mixer_results
+ps -u $USER -f | grep -E "mixer.py|singularity|07_mixer_results.sh" | grep -v grep
+htop -u iy2120
+```
+
+
+

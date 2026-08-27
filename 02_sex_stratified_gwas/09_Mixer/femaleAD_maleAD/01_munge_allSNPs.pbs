@@ -1,0 +1,159 @@
+#################################################################MiXeR v1.1 and v1.2 are supported; MiXeR v1.3+ is deprecated
+#!/bin/bash
+#PBS -N munge
+#PBS -l select=1:ncpus=1:mem=15GB
+#PBS -l walltime=01:00:00
+#PBS -J 1-4
+#PBS -o /path/mixer_ukb/munged_sumstats/pbs
+#PBS -e /path/mixer_ukb/munged_sumstats/pbs
+
+module load ldsc/20190815
+cd $PBS_O_WORKDIR
+
+VARIABLES=($(awk -v var=$PBS_ARRAY_INDEX 'NR==var' array_values.txt))
+trait=${VARIABLES[0]}
+
+munge_sumstats.py \
+--sumstats /path/sumstats/ukb/${trait} \
+--merge-alleles /path/SNPinfo_ukb/ukb_snplist_autosome_maf0.005_info0.6.tsv \
+--snp SNPrs \
+--out ${trait} 
+#################################################################
+
+
+
+
+
+
+
+# Overview [https://github.com/precimed/python_convert]
+#!/bin/bash
+
+conda activate mixer
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/
+
+***************************************************convert_ad_sumstats_female.sh
+#!/bin/bash
+set -euo pipefail
+
+INFILE="/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Females/Metaanalysis_ad_female_AllCohorts_QCed_rsID.txt"
+OUTFILE="/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/munged_sumstats/Metaanalysis_ad_female_AllCohorts_QCed_rsID.txt"
+
+awk '
+BEGIN {
+    OFS="\t"
+}
+NR==1 {
+    # Modify the header
+    $2="A1"
+    $3="A2"
+    $NF="SNP"
+
+    # Remove the first column and output from the second column onward
+    for (i=2; i<=NF; i++) {
+        printf "%s%s", $i, (i<NF ? OFS : ORS)
+    }
+    next
+}
+NR>1 {
+    # Convert A1/A2 to uppercase
+    $2=toupper($2)
+    $3=toupper($3)
+
+    # Remove the first column and output from the second column onward
+    for (i=2; i<=NF; i++) {
+        printf "%s%s", $i, (i<NF ? OFS : ORS)
+    }
+}
+' "$INFILE" > "$OUTFILE"
+
+echo "Done:"
+echo "$OUTFILE"
+
+***************************************************convert_ad_sumstats_male.sh
+#!/bin/bash
+set -euo pipefail
+
+INFILE="/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Males/Metaanalysis_ad_male_AllCohorts_QCed_rsID.txt"
+OUTFILE="/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/munged_sumstats/Metaanalysis_ad_male_AllCohorts_QCed_rsID.txt"
+
+awk '
+BEGIN {
+    OFS="\t"
+}
+NR==1 {
+    # Modify the header
+    $2="A1"
+    $3="A2"
+    $NF="SNP"
+
+    # Remove the first column and output from the second column onward
+    for (i=2; i<=NF; i++) {
+        printf "%s%s", $i, (i<NF ? OFS : ORS)
+    }
+    next
+}
+NR>1 {
+    # Convert A1/A2 to uppercase
+    $2=toupper($2)
+    $3=toupper($3)
+
+    # Remove the first column and output from the second column onward
+    for (i=2; i<=NF; i++) {
+        printf "%s%s", $i, (i<NF ? OFS : ORS)
+    }
+}
+' "$INFILE" > "$OUTFILE"
+
+echo "Done:"
+echo "$OUTFILE"
+
+
+#female
+python /media/desk15/iy2120/Genomic_tools/python_convert/sumstats.py csv \
+--sumstats /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/munged_sumstats/Metaanalysis_ad_female_AllCohorts_QCed_rsID.txt \
+--out ./munged_sumstats/Metaanalysis_ad_female_AllCohorts.csv \
+--force --auto \
+--head 5 \
+--n-val 1279
+
+python /media/desk15/iy2120/Genomic_tools/python_convert/sumstats.py zscore \
+    --sumstats ./munged_sumstats/Metaanalysis_ad_female_AllCohorts.csv | \
+python /media/desk15/iy2120/Genomic_tools/python_convert/sumstats.py qc \
+    --exclude-ranges 6:26000000-34000000 19:44900000-46500000 \
+    --out ./munged_sumstats/Metaanalysis_ad_female_AllCohorts_noMHC_APOE.csv \
+    --force
+
+gzip ./munged_sumstats/Metaanalysis_ad_female_AllCohorts_noMHC_APOE.csv
+
+#male
+python /media/desk15/iy2120/Genomic_tools/python_convert/sumstats.py csv \
+--sumstats /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/munged_sumstats/Metaanalysis_ad_male_AllCohorts_QCed_rsID.txt \
+--out ./munged_sumstats/Metaanalysis_ad_male_AllCohorts.csv \
+--force --auto \
+--head 5 \
+--n-val 927
+
+python /media/desk15/iy2120/Genomic_tools/python_convert/sumstats.py zscore \
+    --sumstats ./munged_sumstats/Metaanalysis_ad_male_AllCohorts.csv | \
+python /media/desk15/iy2120/Genomic_tools/python_convert/sumstats.py qc \
+    --exclude-ranges 6:26000000-34000000 19:44900000-46500000 \
+    --out ./munged_sumstats/Metaanalysis_ad_male_AllCohorts_noMHC_APOE.csv \
+    --force
+
+gzip ./munged_sumstats/Metaanalysis_ad_male_AllCohorts_noMHC_APOE.csv
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

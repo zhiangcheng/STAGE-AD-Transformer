@@ -1,0 +1,131 @@
+##############################################################################
+#!/bin/bash
+#PBS -N mixer_results
+#PBS -l select=1:ncpus=1:mem=1G:avx2=True
+#PBS -l walltime=01:00:00
+#PBS -J 1-8
+#PBS -o /path/mixer_ukb/results_univariate/pbs
+#PBS -e /path/mixer_ukb/results_univariate/pbs
+
+#module load mixer/20240923
+conda activate mixer
+module load singularity
+
+cd $PBS_O_WORKDIR
+
+VARIABLES=($(awk -v var=$PBS_ARRAY_INDEX 'NR==var' array_values.txt))
+trait=${VARIABLES[0]}
+model=${VARIABLES[1]}
+
+python3 $MIXER_ROOT/precimed/mixer_figures.py combine \
+--json /path/mixer_ukb/mixer_${model}1/${trait}.${model}.rep@.json \
+--out ${trait}.${model}
+
+python3 $MIXER_ROOT/precimed/mixer_figures.py one \
+--json ${trait}.${model}.json \
+--statistic mean std \
+--out ${trait}.${model}
+##############################################################################
+
+
+#!/bin/bash
+set -euo pipefail
+
+source activate mixer
+
+MIXER_SIF="/media/desk15/iy2120/Genomic_tools/mixer/mixer.sif"
+
+export MIXER_FIGURE="singularity exec \
+  --bind /media/desk15/iy2120:/media/desk15/iy2120 \
+  ${MIXER_SIF} \
+  python3 /tools/mixer/precimed/mixer_figures.py"
+
+WORKDIR="/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD"
+
+OUTDIR="${WORKDIR}/results_univariate"
+mkdir -p "${OUTDIR}"
+
+cd "${OUTDIR}"
+
+for model in fit test; do
+
+while read -r trait rep; do
+
+    if [[ -z "${trait:-}" || -z "${rep:-}" ]]; then
+        continue
+    fi
+
+    echo "======================================"
+    echo "Running MiXeR univariate"
+    echo "Trait: ${trait}"
+    echo "Model: ${model}"
+    echo "Rep:   ${rep}"
+    echo "======================================"
+
+    ${MIXER_FIGURE} combine \
+             --json "${WORKDIR}/mixer_${model}1/${trait}.${model}.rep@.json" \
+             --out ${trait}.${model}
+
+    echo "Finished: ${trait} ${model}"
+    echo
+
+done < "${WORKDIR}/array_values.txt"
+done
+
+
+for model in fit test; do
+
+while read -r trait rep; do
+
+    if [[ -z "${trait:-}" || -z "${rep:-}" ]]; then
+        continue
+    fi
+
+    echo "======================================"
+    echo "Running MiXeR univariate"
+    echo "Trait: ${trait}"
+    echo "Model: ${model}"
+    echo "Rep:   ${rep}"
+    echo "======================================"
+
+     ${MIXER_FIGURE} one \
+             --json ${trait}.${model}.json \
+             --statistic mean std \
+             --out ${trait}.${model}
+
+    echo "Finished: ${trait} ${model}"
+    echo
+
+done < "${WORKDIR}/array_values.txt"
+done
+
+
+
+
+
+
+
+
+
+
+
+
+```
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/
+
+tmux new -s 04_mixer_combine
+bash 04_mixer_combine.sh > 04_mixer_combine.log 2>&1
+''' Ctrl + b
+Release the keys, then press d '''
+tmux ls
+tmux attach -t 04_mixer_combine
+ps -u $USER -f | grep -E "mixer.py|singularity|04_mixer_combine.sh" | grep -v grep
+htop -u iy2120
+```
+
+
+
+
+
+
+

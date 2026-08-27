@@ -1,0 +1,114 @@
+# Format identified lead SNPs by using PLINK clumping so can input to SNP2GENE
+# Input file should have 3 columns:
+#	rsID : rsID of the lead SNPs
+#	chr : chromosome
+#	pos : genomic position (hg19)
+
+
+#female
+# Print non-empty rows with cols needed
+awk '$3 && $1 && $4 {print $3, $1, $4}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/030_Clumping/Females/clumped_female_all_results_genomewide_sig.txt > clumped_female_all_results_genomewide_sig_formatted_SNP2GENE.txt
+
+
+
+# Match onto GWAS sumstats file to get rsID
+sumstats=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Females/Metaanalysis_ad_female_AllCohorts_QCed_rsID.txt
+
+clumps=clumped_female_all_results_genomewide_sig_formatted_SNP2GENE.txt
+
+output=clumped_female_all_results_genomewide_sig_formatted_SNP2GENE_rsID.txt
+
+awk 'NR==FNR {
+        marker[$1] = $1;
+        next
+    }
+    {
+        if (FNR == 1) {
+	print "rsID", "chr", "pos";
+    }
+        else if ($1 in marker) {
+            print $16,$14,$15;
+        }
+    }' ${clumps} ${sumstats} > ${output}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#male
+# Print non-empty rows with cols needed
+awk '$3 && $1 && $4 {print $3, $1, $4}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/030_Clumping/Males/clumped_male_all_results_genomewide_sig.txt > clumped_male_all_results_genomewide_sig_formatted_SNP2GENE.txt
+
+
+
+# Match onto GWAS sumstats file to get rsID
+sumstats=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Males/Metaanalysis_ad_male_AllCohorts_QCed_rsID.txt
+
+clumps=clumped_male_all_results_genomewide_sig_formatted_SNP2GENE.txt
+
+output=clumped_male_all_results_genomewide_sig_formatted_SNP2GENE_rsID.txt
+
+awk 'NR==FNR {
+        marker[$1] = $1;
+        next
+    }
+    {
+        if (FNR == 1) {
+	print "rsID", "chr", "pos";
+    }
+        else if ($1 in marker) {
+            print $16,$14,$15;
+        }
+    }' ${clumps} ${sumstats} > ${output}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#fulldc
+# Print non-empty rows with cols needed
+awk '$3 && $1 && $4 {print $3, $1, $4}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/030_Clumping/fulldc/clumped_GxS_fulldc_all_results_genomewide_sig.txt > clumped_GxS_fulldc_all_results_genomewide_sig_formatted_SNP2GENE.txt
+
+
+
+# Match onto GWAS sumstats file to get rsID
+sumstats=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/GxS/fulldc/Metaanalysis_ad_GxS_fulldc_AllCohorts_QCed_rsID.txt
+
+clumps=clumped_GxS_fulldc_all_results_genomewide_sig_formatted_SNP2GENE.txt
+
+output=clumped_GxS_fulldc_all_results_genomewide_sig_formatted_SNP2GENE_rsID.txt
+
+awk 'NR==FNR {
+        marker[$1] = $1;
+        next
+    }
+    {
+        if (FNR == 1) {
+	print "rsID", "chr", "pos";
+    }
+        else if ($1 in marker) {
+            print $16,$14,$15;
+        }
+    }' ${clumps} ${sumstats} > ${output}
+
+
+

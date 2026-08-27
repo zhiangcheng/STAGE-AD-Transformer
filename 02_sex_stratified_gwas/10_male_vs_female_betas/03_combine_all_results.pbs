@@ -1,0 +1,11 @@
+## Combine all results into one file ##
+
+# Get header line from one file
+head -n 1 "$(ls -1 Bellenguez_SNPs/clumped_Bellenguez_SNPs*.clumped | head -n 1)" > Bellenguez_SNPs/clumped_Bellenguez_SNPs_all_results.txt
+
+# Take contents (- headerline) and concatenate (-q to suppress printing file name when cat)
+tail -q -n +2 Bellenguez_SNPs/clumped_Bellenguez_SNPs*.clumped >> Bellenguez_SNPs/clumped_Bellenguez_SNPs_all_results.txt
+
+# Look at independent SNPs
+awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11}' Bellenguez_SNPs/clumped_Bellenguez_SNPs_all_results.txt
+

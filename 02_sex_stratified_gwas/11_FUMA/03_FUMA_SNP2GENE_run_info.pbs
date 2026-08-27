@@ -1,0 +1,24 @@
+In FUMA ran SNP2GENE for female, male and GxS fulldc - a couple runs for each to capture different info
+
+
+1) *_genomewidesig_positionalmap10kb_MHCexcl
+- Only significant SNPs (genome wide for female and male, nominally for GxS)
+- Not including SNPs in LD from reference panel
+- MAF 0 so includes all SNPs from sumstats
+- Positional mapping based on distance (10kb)
+- Excluding MHC region
+- MAGMA run
+
+2) *_allSNP_positional10kb_MHCincl
+- All SNPs in LD with lead SNPs
+- Do include SNPs in LD from reference panel
+- MAF 0.001 so filters out rare variants added from reference panel but should also keep all the SNPs from sumstats
+- Positional mapping based on distance (10kb)
+- Including MHC region
+- MAGMA not run
+
+
+
+The idea is to look at different things
+1) is to look at gene based tests, gene set tests, and annotations
+2) is to determine if there are any novel SNPs identified - so can check all SNPs in LD with the lead SNPs to see what they have previously been associated with in GWASCatalog. If a lead SNP and all of the SNPs in the same clump/in LD with it don't have a previous association with MDD in GWASCatalog this suggests its a novel SNP found.

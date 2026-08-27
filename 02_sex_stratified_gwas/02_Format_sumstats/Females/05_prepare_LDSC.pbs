@@ -1,0 +1,74 @@
+#!/bin/bash
+
+
+dbSNP=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/dbSNP155/NCBI_Hsapiens_dbSNP155_GRCh37_GRCh38.p13_split_multiallelics_MAF0_0001_ALL_matches.txt
+
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/LDSC_reference/
+
+
+awk -F'[ \t]+' -v OFS='\t' '
+NR==FNR {
+    if (FNR == 1) next
+    chr[$3] = $1
+    pos[$3] = $2
+    next
+}
+
+FNR == 1 {
+    print
+    next
+}
+
+{
+    rsid = $1
+
+    if (rsid in chr) {
+        if (!(chr[rsid] == 6 && pos[rsid] >= 25000000 && pos[rsid] <= 34000000)) {
+            print
+        }
+    }
+}
+' ${dbSNP} w_hm3.snplist \
+> w_hm3.noMHC.snplist
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**************************************************************************
+awk '                                                            
+NR==1 {
+  n=NF
+  print
+  next
+}
+NF==n {
+  print
+}
+NF!=n {
+  bad++
+}
+END {
+  print "Removed malformed lines:", bad > "/dev/stderr"
+}
+' msbb_ad_female_sumstats_formatted_formetaanalysis.txt > msbb_ad_female_sumstats_formatted_formetaanalysis.clean.txt
+Removed malformed lines: 248

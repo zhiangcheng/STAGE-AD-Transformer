@@ -1,0 +1,124 @@
+##############################################################################
+#!/bin/bash
+#PBS -N mixer_fit2
+#PBS -l select=1:ncpus=10:mem=17G:avx2=True
+#PBS -l walltime=72:00:00
+#PBS -J 1-120
+#PBS -o /path/mixer_ukb/mixer_fit2/pbs
+#PBS -e /path/mixer_ukb/mixer_fit2/pbs
+
+module load mixer/20240923
+cd $PBS_O_WORKDIR
+
+VARIABLES=($(awk -v var=$PBS_ARRAY_INDEX 'NR==var' array_values.txt))
+trait1=${VARIABLES[0]}
+trait2=${VARIABLES[1]}
+rep=${VARIABLES[2]}
+
+python3 $MIXER_ROOT/precimed/mixer.py fit2 \
+--lib $MIXER_ROOT/src/build/lib/libbgmg.so \
+--bim-file /path/ref_1kG_phase3_EUR/chr@.bim \
+--ld-file /path/1000G_EUR_Phase3_LDref/1000G.EUR.QC.chr@.run4.ld \
+--extract /path/1000G_EUR_Phase3_LDref/1000G.EUR.QC.prune_maf0p05_rand2M_r2p8.rep${rep}.snps \
+--trait1-file /path/mixer_ukb/munged_sumstats/${trait1}.sumstats.gz \
+--trait2-file /path/mixer_ukb/munged_sumstats/${trait2}.sumstats.gz \
+--trait1-params-file  /path/mixer_ukb/mixer_fit1/${trait1}.fit.rep${rep}.json \
+--trait2-params-file  /path/mixer_ukb/mixer_fit1/${trait2}.fit.rep${rep}.json \
+--threads 10 \
+--out ${trait1}.${trait2}.fit.rep${rep}
+##############################################################################
+
+
+
+#!/bin/bash
+set -euo pipefail
+
+# Load the environment
+source activate mixer
+
+# Configure paths
+WORKDIR="/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD"
+MIXER_SIF="/media/desk15/iy2120/Genomic_tools/mixer/mixer.sif"
+
+REFDIR="/media/desk15/iy2120/Genomic_tools/mixer/reference/ldsc/1000G_EUR_Phase3_plink"
+SUMSTAT_DIR="${WORKDIR}/munged_sumstats"
+OUTDIR="${WORKDIR}/mixer_fit2"
+
+mkdir -p "${OUTDIR}"
+
+cd "${WORKDIR}"
+
+export MIXER_PY="singularity exec \
+  --bind /media/desk15/iy2120:/media/desk15/iy2120 \
+  ${MIXER_SIF} \
+  python3 /tools/mixer/precimed/mixer.py"
+
+if [ ! -f "array_values_bivariate.txt" ]; then
+    echo "Error: array_values_bivariate.txt not found"
+    exit 1
+fi
+
+while read -r trait1 trait2 rep; do
+
+    # Remove Windows line endings
+    trait1=$(echo "${trait1:-}" | tr -d '\r')
+    trait2=$(echo "${trait2:-}" | tr -d '\r')
+    rep=$(echo "${rep:-}" | tr -d '\r')
+
+    # Perform a complete missing-value check
+    if [[ -z "$trait1" || -z "$trait2" || -z "$rep" ]]; then
+        continue
+    fi
+
+    echo "======================================"
+    echo "Running MiXeR fit2"
+    echo "Trait: ${trait1}"
+    echo "Trait: ${trait2}"
+    echo "Rep:   ${rep}"
+    echo "======================================"
+
+    ${MIXER_PY} fit2 \
+        --bim-file "${REFDIR}/1000G.EUR.QC.@.bim" \
+        --ld-file "${REFDIR}/1000G.EUR.QC.@.run4.ld" \
+        --extract "${REFDIR}/1000G.EUR.QC.prune_maf0p05_rand2M_r2p8.rep${rep}.snps" \
+        --trait1-file "${SUMSTAT_DIR}/${trait1}.csv.gz" \
+        --trait2-file "${SUMSTAT_DIR}/${trait2}.csv.gz" \
+        --trait1-params-file  "${WORKDIR}/mixer_fit1/${trait1}.fit.rep${rep}.json" \
+        --trait2-params-file  "${WORKDIR}/mixer_fit1/${trait2}.fit.rep${rep}.json" \
+        --threads 16 \
+        --out "${OUTDIR}/${trait1}.${trait2}.fit.rep${rep}"
+
+    echo "Finished: ${trait1} ${trait2} rep${rep}"
+    echo
+
+done < array_values_bivariate.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/070_Mixer/femaleAD_maleAD/
+sed -i 's/\r$//' array_values_bivariate.txt # Remove hidden Windows line endings
+
+tmux new -s 05_mixer_fit2
+bash 05_mixer_fit2.sh > 05_mixer_fit2.log 2>&1
+''' Ctrl + b
+Release the keys, then press d '''
+tmux ls
+tmux attach -t 05_mixer_fit2
+ps -u $USER -f | grep -E "mixer.py|singularity|05_mixer_fit2.sh" | grep -v grep
+htop -u iy2120
+```
+
+
+

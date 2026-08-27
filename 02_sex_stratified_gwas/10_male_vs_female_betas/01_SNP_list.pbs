@@ -1,0 +1,10 @@
+# First make a list of SNPs to input for clumping: SNP (rsID) P (p-value)
+# Using Adams sumstats for Europeans including 23andMe
+
+# liftover
+
+# prepare data
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/080_male_vs_female_betas/
+zcat /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/080_male_vs_female_betas/Bellenguez_SNPs/GCST90027158_buildGRCh37.txt.gz \
+| awk 'NR==1{print "SNP","P"} NR>1{print $1":"$2":"$4":"$3, $6}' \
+> ./Bellenguez_SNPs/Bellenguez_Full_EUR_2022_formatted.txt

@@ -1,0 +1,40 @@
+## Combine all results into one file ##
+
+# Get header line from one file
+head -n 1 "$(ls -1 clumped_male*.clumped | head -n 1)" > clumped_male_all_results.txt
+
+# Take contents (- headerline) and concatenate (-q to suppress printing file name when cat)
+tail -q -n +2 clumped_male*.clumped >> clumped_male_all_results.txt
+
+# Look at independent SNPs
+awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11}' clumped_male_all_results.txt
+
+
+
+# No. independent SNPs genome-wide sig
+awk '($5 < 5e-08)' clumped_male_all_results.txt > clumped_male_all_results_genomewide_sig.txt
+awk '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11}' clumped_male_all_results_genomewide_sig.txt
+
+
+
+
+
+
+
+
+
+
+
+
+```
+nohup bash 03_combine_all_results.sh >03_combine_all_results.log 2>&1 &
+```
+
+
+
+
+
+
+
+
+

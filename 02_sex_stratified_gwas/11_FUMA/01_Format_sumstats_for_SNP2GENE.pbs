@@ -1,0 +1,93 @@
+# Format meta-analysis summary statistics to input to FUMA's SNP2GENE
+# Column names are automatically detected based on the following headers (case insensitive).
+	# SNP | snpid | markername | rsID: rsID
+	# CHR | chromosome | chrom: chromosome
+	# BP | pos | position: genomic position (hg19)
+	# A1 | effect_allele | allele1 | alleleB: affected allele
+	# A2 | non_effect_allele | allele2 | alleleA: another allele
+	# P | pvalue | p-value | p_value | pval: P-value (Mandatory)
+	# OR: Odds Ratio
+	# Beta | be: Beta
+	# SE: Standard error
+
+#female
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/090_FUMA/
+
+sumstats=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Females/Metaanalysis_ad_female_AllCohorts_QCed_rsID.txt
+
+
+awk 'NR==1 {
+	print "SNP","CHR","BP","A1","A2","P","Beta","SE","N"
+}
+NR>1 {
+	print $16,$14,$15,$2,$3,$10,$8,$9,$12
+}' ${sumstats} > Metaanalysis_ad_female_AllCohorts_QCed_rsID_formatted_SNP2GENE.txt
+
+
+gzip -k Metaanalysis_ad_female_AllCohorts_QCed_rsID_formatted_SNP2GENE.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+#male
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/090_FUMA/
+
+sumstats=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Males/Metaanalysis_ad_male_AllCohorts_QCed_rsID.txt
+
+
+awk 'NR==1 {
+	print "SNP","CHR","BP","A1","A2","P","Beta","SE","N"
+}
+NR>1 {
+	print $16,$14,$15,$2,$3,$10,$8,$9,$12
+}' ${sumstats} > Metaanalysis_ad_male_AllCohorts_QCed_rsID_formatted_SNP2GENE.txt
+
+
+gzip -k Metaanalysis_ad_male_AllCohorts_QCed_rsID_formatted_SNP2GENE.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#fulldc
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/090_FUMA/
+
+sumstats=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/GxS/fulldc/Metaanalysis_ad_GxS_fulldc_AllCohorts_QCed_rsID.txt
+
+
+awk 'NR==1 {
+	print "SNP","CHR","BP","A1","A2","P","Beta","SE","N"
+}
+NR>1 {
+	print $16,$14,$15,$2,$3,$10,$8,$9,$12
+}' ${sumstats} > Metaanalysis_ad_GxS_fulldc_AllCohorts_QCed_rsID_formatted_SNP2GENE.txt
+
+
+gzip -k Metaanalysis_ad_GxS_fulldc_AllCohorts_QCed_rsID_formatted_SNP2GENE.txt
+
+
+
+
+
+
+
+
+

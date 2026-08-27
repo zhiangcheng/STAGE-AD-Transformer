@@ -1,0 +1,105 @@
+# Start by formatting all sumstats from each cohort consistently
+# Do this in an interactive session to check as go
+# CHR BP A1 A2 FREQA1 BETA SE P N MAF STUDY INFO
+# CHR is a number 1 - 22 and X
+# STUDY = 1 in each row - use in meta-analysis to count no. studies meta-analysed
+
+
+### ADNI ###
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ADNI/female/adni_fastGWA_female_PAR.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/adni_fastGWA_female_PAR.fastGWA
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ADNI/female/adni_fastGWA_female_nPAR.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/adni_fastGWA_female_nPAR.fastGWA
+cp /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ADNI/female/adni_fastGWA_female.fastGWA  /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females
+
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females
+awk 'FNR==1 && NR!=1 {next} {print}' adni_fastGWA_female.fastGWA adni_fastGWA_female_nPAR.fastGWA adni_fastGWA_female_PAR.fastGWA > adni_females_autosomes_and_X.txt
+
+awk 'BEGIN{OFS="\t"} {if(NR==1) print $0, "INFO", "STUDY"; else print $0, "0.95", "1"}' adni_females_autosomes_and_X.txt >adni_females_autosomes_and_X_withinfoandstudy.txt
+
+cat adni_females_autosomes_and_X_withinfoandstudy.txt | awk 'NR==1 {print $0, "MAF"; next} {maf=$7; if($7>0.5) maf=1-$7; print $0, maf}' > temp.txt && mv temp.txt adni_females_autosomes_and_X_withinfoandstudy.txt
+
+
+
+adni_female=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/adni_females_autosomes_and_X_withinfoandstudy.txt
+
+awk 'NR==1 {print "CHR", "BP", "A1", "A2", "FREQA1", "BETA", "SE", "P", "N", "MAF", "STUDY", "INFO"} NR>1 {print $1,$3,$4,$5,$7,$11,$12,$13,$6,$17,$16,$15}' ${adni_female} > adni_build37_ad_female_sumstats.txt
+# MAF is minor allele freq calculated in all genepi QIMR cohorts
+
+awk '{ gsub("23", "X", $1) ; gsub("25", "X", $1) ; print }' adni_build37_ad_female_sumstats.txt > temp_adni.txt && mv temp_adni.txt adni_build37_ad_female_sumstats.txt
+
+
+
+
+### ROSMAP ###
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ROSMAP/female/rosmap_fastGWA_female_PAR.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/rosmap_fastGWA_female_PAR.fastGWA
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ROSMAP/female/rosmap_fastGWA_female_nPAR.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/rosmap_fastGWA_female_nPAR.fastGWA
+cp /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ROSMAP/female/rosmap_fastGWA_female.fastGWA  /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females
+
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females
+awk 'FNR==1 && NR!=1 {next} {print}' rosmap_fastGWA_female.fastGWA rosmap_fastGWA_female_nPAR.fastGWA rosmap_fastGWA_female_PAR.fastGWA > rosmap_females_autosomes_and_X.txt
+
+awk 'BEGIN{OFS="\t"} {if(NR==1) print $0, "INFO", "STUDY"; else print $0, "0.95", "1"}' rosmap_females_autosomes_and_X.txt >rosmap_females_autosomes_and_X_withinfoandstudy.txt
+
+cat rosmap_females_autosomes_and_X_withinfoandstudy.txt | awk 'NR==1 {print $0, "MAF"; next} {maf=$7; if($7>0.5) maf=1-$7; print $0, maf}' > temp.txt && mv temp.txt rosmap_females_autosomes_and_X_withinfoandstudy.txt
+
+
+
+rosmap_female=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/rosmap_females_autosomes_and_X_withinfoandstudy.txt
+
+awk 'NR==1 {print "CHR", "BP", "A1", "A2", "FREQA1", "BETA", "SE", "P", "N", "MAF", "STUDY", "INFO"} NR>1 {print $1,$3,$4,$5,$7,$11,$12,$13,$6,$17,$16,$15}' ${rosmap_female} > rosmap_build37_ad_female_sumstats.txt
+# MAF is minor allele freq calculated in all genepi QIMR cohorts
+
+awk '{ gsub("23", "X", $1) ; gsub("25", "X", $1) ; print }' rosmap_build37_ad_female_sumstats.txt > temp_rosmap.txt && mv temp_rosmap.txt rosmap_build37_ad_female_sumstats.txt
+
+
+
+
+### MSBB ###
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/MSBB/female/03_results/fastgwa_binary_AD/msbb.AD.strict.autosome_plus_chrX.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/msbb_fastGWA_female.fastGWA
+
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females
+awk 'BEGIN{OFS="\t"} {if(NR==1) print $0, "INFO", "STUDY"; else print $0, "0.95", "1"}' msbb_fastGWA_female.fastGWA >msbb_females_autosomes_and_X_withinfoandstudy.txt
+
+cat msbb_females_autosomes_and_X_withinfoandstudy.txt | awk 'NR==1 {print $0, "MAF"; next} {maf=$7; if($7>0.5) maf=1-$7; print $0, maf}' > temp.txt && mv temp.txt msbb_females_autosomes_and_X_withinfoandstudy.txt
+
+
+
+msbb_female=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/msbb_females_autosomes_and_X_withinfoandstudy.txt
+
+awk 'NR==1 {print "CHR", "BP", "A1", "A2", "FREQA1", "BETA", "SE", "P", "N", "MAF", "STUDY", "INFO"} NR>1 {print $1,$3,$4,$5,$7,$11,$12,$13,$6,$18,$17,$16}' ${msbb_female} > msbb_build37_ad_female_sumstats.txt
+# FREQA1 is Overall Frequency Allele 1 across meta-analysis of all cohorts
+# MAF is minor allele frequency - not stated in README where from, presumably across all cohorts included in meta-analysis?
+# INFO was not provided in sumstats, presumable because imputation score was different in each cohort and they filtered on this before doing the meta-analysis.
+
+awk '{ gsub("23", "X", $1) ; gsub("25", "X", $1) ; print }' msbb_build37_ad_female_sumstats.txt > temp_msbb.txt && mv temp_msbb.txt msbb_build37_ad_female_sumstats.txt
+
+
+
+
+### UK Biobank ###
+
+UKB_female=/path/UKBiobank_combined2/sex_stratified/GWAS_UKB_depression_females_autosomes_and_X_QCed_INFO0.6_MAF0.01.txt
+
+awk 'NR==1 {print "CHR", "BP", "A1", "A2", "FREQA1", "BETA", "SE", "P", "N", "MAF", "STUDY", "INFO"}
+        NR>1 {print $2,$3,$4,$5,$6,$7,$8,$9,$10,$12,"1",$11}' ${UKB_female} > UKB_build37_MDD_female_sumstats.txt
+# MAF is provided by UK B - presumable minor allele freq calculated in entire UK B
+
+awk '{ gsub("23", "X", $1) ; gsub("25", "X", $1) ; print }' UKB_build37_MDD_female_sumstats.txt > temp_UKB.txt && mv temp_UKB.txt UKB_build37_MDD_female_sumstats.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

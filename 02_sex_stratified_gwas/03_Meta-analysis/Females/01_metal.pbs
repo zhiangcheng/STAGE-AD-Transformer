@@ -1,0 +1,162 @@
+#!/bin/bash
+#PBS -l walltime=04:00:00
+#PBS -l mem=64GB
+#PBS -l ncpus=1
+#PBS -J 0-3
+
+# This script uses METAL to run a meta-analysis on multiple GWAS summary statistics
+# It runs in parallel a meta-analysis for all cohorts, plus all possible LOO meta-analyses
+
+
+
+
+****************************************************************************00_before_metal.sh
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/output/
+for f in *_ad_female_sumstats_formatted_formetaanalysis.txt; do
+    out="${f%.txt}.txt"
+    awk 'NR==1{print; next}
+    {
+      if($BETA=="NA"||$BETA=="nan"||$BETA=="."||
+         $SE=="NA"||$SE=="nan"||$SE=="."||
+         $P=="NA"||$P=="nan"||$P=="."||$P=="-nane-nan"||
+         $N=="NA"||$N=="nan"||$N==".") next;
+
+      if($SE==0) $SE=1e-6
+      if($N==0)  $N=1
+      if($P==0)  $P=1e-30
+      print
+    }' "$f" > /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Females/"$out"
+done
+****************************************************************************
+
+
+### Environment ###
+
+source activate GWAS
+#module load metal/20200505
+
+
+### Run script ###
+
+# Create the METAL configuration file dynamically for each job
+
+### Preamble ###
+directory=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Females
+
+# Store the files in an array
+files=( /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/Females/*_ad_female_sumstats_formatted_formetaanalysis.txt )
+num_files=${#files[@]}
+
+echo "Found ${num_files} cohort files"
+
+cd "$directory" || exit 1
+
+########################################
+# 1. Analyze all cohorts
+########################################
+config_file="01_metal_all.txt"
+outfile="Metaanalysis_ad_female_AllCohorts_"
+
+echo "Creating config for all cohorts..."
+{
+    echo "SCHEME STDERR"
+    echo "AVERAGEFREQ ON"
+    echo "MINMAXFREQ ON"
+    echo "GENOMICCONTROL OFF"
+    echo "VERBOSE OFF"
+    echo "COLUMNCOUNTING STRICT"
+    echo "CUSTOMVARIABLE N_TOTAL"
+    echo "CUSTOMVARIABLE NUM_STUDIES_METAANALYSED"
+    echo "MARKER MARKER_build37"
+    echo "ALLELE A1 A2"
+    echo "EFFECT BETA"
+    echo "PVALUE P"
+    echo "WEIGHT N"
+    echo "STDERR SE"
+    echo "FREQLABEL FREQA1"
+    echo "LABEL N_TOTAL as N"
+    echo "LABEL NUM_STUDIES_METAANALYSED as STUDY"
+
+    for file in "${files[@]}"; do
+        echo "PROCESS ${file}"
+    done
+
+    echo "OUTFILE ${outfile} .tbl"
+    echo "ANALYZE"
+    echo "QUIT"
+} > "$config_file"
+
+/media/desk15/iy2120/Genomic_tools/metal "$config_file"
+
+########################################
+# 2. Leave-one-out analysis
+########################################
+for ((i=0; i<num_files; i++)); do
+    leave_out=$(basename "${files[$i]}" | sed 's|_ad_female_sumstats_formatted_formetaanalysis.txt||')
+    config_file="01_metal_leaveout_${leave_out}.txt"
+    outfile="Metaanalysis_ad_female_leaveout_${leave_out}_"
+
+    echo "Creating config leaving out ${leave_out}..."
+    {
+        echo "SCHEME STDERR"
+        echo "AVERAGEFREQ ON"
+        echo "MINMAXFREQ ON"
+        echo "GENOMICCONTROL OFF"
+        echo "VERBOSE OFF"
+        echo "COLUMNCOUNTING STRICT"
+        echo "CUSTOMVARIABLE N_TOTAL"
+        echo "CUSTOMVARIABLE NUM_STUDIES_METAANALYSED"
+        echo "MARKER MARKER_build37"
+        echo "ALLELE A1 A2"
+        echo "EFFECT BETA"
+        echo "PVALUE P"
+        echo "WEIGHT N"
+        echo "STDERR SE"
+        echo "FREQLABEL FREQA1"
+        echo "LABEL N_TOTAL as N"
+        echo "LABEL NUM_STUDIES_METAANALYSED as STUDY"
+
+        # PROCESS all files except the current leave-out cohort
+        for j in "${!files[@]}"; do
+            if [ "$j" -ne "$i" ]; then
+                echo "PROCESS ${files[$j]}"
+            fi
+        done
+
+        echo "OUTFILE ${outfile} .tbl"
+        echo "ANALYZE"
+        echo "QUIT"
+    } > "$config_file"
+
+    /media/desk15/iy2120/Genomic_tools/metal "$config_file"
+done
+
+echo "All METAL analyses finished!"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+nohup bash 01_metal.sh >01_metal.log 2>&1 &
+```
+
+
+
+
+
+
+
+
+

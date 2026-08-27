@@ -1,0 +1,62 @@
+#!/bin/bash
+#PBS -l walltime=01:00:00
+#PBS -l mem=20GB
+#PBS -l ncpus=1
+
+# This script formats input GWAS sumstats
+# need to be in the GCTA-COJO .ma format = header row of SNP A1 A2 freq b se p N
+# SNP identifier (rsID), effect allele, other allele, frequency of effect allele,
+# effect size, standard error, p-value and sample size
+
+
+### Environment ###
+
+
+
+
+### Preamble ###
+
+directory=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/050_SBayesS/
+
+input_cohort=(/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/*_ad_female_sumstats_formatted_formetaanalysis.txt /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Males/*_ad_male_sumstats_formatted_formetaanalysis.txt)
+
+
+### Run script ###
+
+cd ${directory}
+
+for i in "${!input_cohort[@]}"
+do
+
+    name_cohort=$(echo ${input_cohort[$i]} | sed 's|.*/010_Format_sumstats/.*/||' | sed 's|_formatted_formetaanalysis.txt||')
+
+    # Format cohort sumstats - all pre-formatted before meta-analysis to have same columns
+
+    awk 'NR==1 {print "SNP A1 A2 freq b se p N"} \
+    NR>1 {print $14, $3, $4, $5, $6, $7, $8, $9}' \
+    ${input_cohort[$i]} \
+    > ${name_cohort}_formatted_SBayes.ma
+
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+nohup bash 01_a_Format_sumstats_cohorts.sh >01_a_Format_sumstats_cohorts.log 2>&1 &
+```
+
+

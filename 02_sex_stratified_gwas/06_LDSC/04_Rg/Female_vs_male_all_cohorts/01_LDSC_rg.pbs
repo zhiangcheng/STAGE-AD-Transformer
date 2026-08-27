@@ -1,0 +1,89 @@
+#!/bin/bash
+#PBS -l mem=10GB
+#PBS -l walltime=01:00:00
+#PBS -l ncpus=1
+
+# This script uses LD score regression to calculate rg for the munged sumstats of each cohort, of each sex
+# Sequentially loops over sumstats files instead of using PBS_ARRAY_INDEX
+
+### Environment ###
+
+#module load ldsc/20190815
+
+### Preamble ###
+directory=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/04_Rg/Female_vs_male_all_cohorts/
+reference=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/LDSC_reference/
+
+sumstats_files=(/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Females/output/Munged_sumstats/*_LDSC_munged.sumstats.gz /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/Males/Munged_sumstats/*_LDSC_munged.sumstats.gz)
+num_traits=${#sumstats_files[@]} # Define the number of files and the total number of traits
+
+source activate LDSC
+cd ${directory}
+
+### Loop over each trait index ###
+for PBS_ARRAY_INDEX in $(seq 1 $num_traits)
+do
+    # Calculate the range of traits to process based on the index
+    start_index=$((PBS_ARRAY_INDEX - 1))  # Adjust for 0-based array
+    end_index=$((PBS_ARRAY_INDEX + num_traits - 2))
+
+    # Create the list of traits for the current iteration
+    traits=("${sumstats_files[@]:$start_index:$num_traits}")
+    traits_list=$(printf "%s\n" "${traits[@]}" | paste -sd, -)
+
+    output_file=rg_${PBS_ARRAY_INDEX}
+
+    echo "Processing file: ${sumstats_files[${PBS_ARRAY_INDEX}-1]} with index ${PBS_ARRAY_INDEX}"
+    echo "No. traits: ${num_traits}"
+    echo "Start index: ${start_index}"
+    echo "End index: ${end_index}"
+    echo "Traits: ${traits[@]}"
+    echo "Traits list: ${traits_list}"
+
+    # Run LDSC for the current combination of traits
+    ldsc.py \
+      --rg ${traits_list} \
+      --ref-ld-chr ${reference}eur_w_ld_chr/ \
+      --w-ld-chr ${reference}eur_w_ld_chr/ \
+      --out ${output_file}
+done
+
+### Extract results from all files ###
+awk '/Summary of Genetic Correlation Results/,0' rg_1.log | tail -n +2 | head -n -3 | \
+    sed -e 's|/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/[^/]*/Munged_sumstats/||g' \
+        -e 's|_sumstats_formatted_formetaanalysis_LDSC_munged.sumstats.gz||g' > ldsc_rg_ad_all_female_male_cohorts_results.txt
+
+for i in $(seq 2 $num_traits)
+do
+    awk '/Summary of Genetic Correlation Results/,0' rg_${i}.log | tail -n +3 | head -n -3 | \
+        sed -e 's|/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/[^/]*/Munged_sumstats/||g' \
+            -e 's|_sumstats_formatted_formetaanalysis_LDSC_munged.sumstats.gz||g' >> ldsc_rg_ad_all_female_male_cohorts_results.txt
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+nohup bash 01_LDSC_rg.sh >01_LDSC_rg.log 2>&1 &
+```
+
+
+
+
+
+
+
+

@@ -1,0 +1,91 @@
+# Start by formatting all sumstats from each cohort consistently
+# Do this in an interactive session to check as go
+# CHR BP A1 A2 FREQA1 BETA_G BETA_G_by_E SE_G SE_G_by_E P_G P_G_by_E N MAF STUDY INFO
+# CHR is a number 1 - 22 and X
+# STUDY = 1 in each row - use in meta-analysis to count no. studies meta-analysed
+
+
+### ADNI ###
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ADNI/GxS/adni_fastGWA_PAR.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/adni_fastGWA_PAR.fastGWA
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ADNI/GxS/adni_fastGWA_nPAR_nodc.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/adni_fastGWA_nPAR_nodc.fastGWA
+cp /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ADNI/GxS/adni_fastGWA.fastGWA  /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/
+
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/
+awk 'FNR==1 && NR!=1 {next} {print}' adni_fastGWA.fastGWA adni_fastGWA_nPAR_nodc.fastGWA adni_fastGWA_PAR.fastGWA > adni_autosomes_and_X.txt
+
+awk 'BEGIN{OFS="\t"} {if(NR==1) print $0, "INFO", "STUDY"; else print $0, "0.95", "1"}' adni_autosomes_and_X.txt >adni_autosomes_and_X_withinfoandstudy.txt
+
+cat adni_autosomes_and_X_withinfoandstudy.txt | awk 'NR==1 {print $0, "MAF"; next} {maf=$7; if($7>0.5) maf=1-$7; print $0, maf}' > temp.txt && mv temp.txt adni_autosomes_and_X_withinfoandstudy.txt
+
+
+adni_GxS_nodc=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/adni_autosomes_and_X_withinfoandstudy.txt
+
+awk 'NR==1 {print "CHR", "BP", "A1", "A2", "FREQA1", "BETA_G", "BETA_G_by_E", "SE_G", "SE_G_by_E", "P_G", "P_G_by_E", "N", "MAF", "STUDY", "INFO"} NR>1 {print $1,$3,$4,$5,$7,$8,$9,$10,$11,$16,$17,$6,$21,"1",$19}' ${adni_GxS_nodc} > adni_build37_ad_GxS_nodc_sumstats.txt
+# MAF is minor allele freq calculated in all genepi QIMR cohorts
+
+awk '{ gsub("23", "X", $1) ; gsub("25", "X", $1) ; print }' adni_build37_ad_GxS_nodc_sumstats.txt > temp_adni.txt && mv temp_adni.txt adni_build37_ad_GxS_nodc_sumstats.txt
+
+
+
+
+### ROSMAP ###
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ROSMAP/GxS/rosmap_fastGWA_PAR.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/rosmap_fastGWA_PAR.fastGWA
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ROSMAP/GxS/rosmap_fastGWA_nPAR_nodc.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/rosmap_fastGWA_nPAR_nodc.fastGWA
+cp /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/ROSMAP/GxS/rosmap_fastGWA.fastGWA  /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/
+
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/
+awk 'FNR==1 && NR!=1 {next} {print}' rosmap_fastGWA.fastGWA rosmap_fastGWA_nPAR_nodc.fastGWA rosmap_fastGWA_PAR.fastGWA > rosmap_autosomes_and_X.txt
+
+awk 'BEGIN{OFS="\t"} {if(NR==1) print $0, "INFO", "STUDY"; else print $0, "0.95", "1"}' rosmap_autosomes_and_X.txt >rosmap_autosomes_and_X_withinfoandstudy.txt
+
+cat rosmap_autosomes_and_X_withinfoandstudy.txt | awk 'NR==1 {print $0, "MAF"; next} {maf=$7; if($7>0.5) maf=1-$7; print $0, maf}' > temp.txt && mv temp.txt rosmap_autosomes_and_X_withinfoandstudy.txt
+
+
+
+rosmap_GxS_nodc=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/rosmap_autosomes_and_X_withinfoandstudy.txt
+
+awk 'NR==1 {print "CHR", "BP", "A1", "A2", "FREQA1", "BETA_G", "BETA_G_by_E", "SE_G", "SE_G_by_E", "P_G", "P_G_by_E", "N", "MAF", "STUDY", "INFO"} NR>1 {print $1,$3,$4,$5,$7,$8,$9,$10,$11,$16,$17,$6,$21,"1",$19}' ${rosmap_GxS_nodc} > rosmap_build37_ad_GxS_nodc_sumstats.txt
+# MAF is provided by ROSMAP - presumable minor allele freq calculated in entire UK B
+
+awk '{ gsub("23", "X", $1) ; gsub("25", "X", $1) ; print }' rosmap_build37_ad_GxS_nodc_sumstats.txt > temp_rosmap.txt && mv temp_rosmap.txt rosmap_build37_ad_GxS_nodc_sumstats.txt
+
+
+
+
+### MSBB ###
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/MSBB/G×S/03_result/msbb_fastGWA_PAR.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/msbb_fastGWA_PAR.fastGWA
+awk 'BEGIN{OFS="\t"} NR==1 {print; next} {sub(/^X:/, "23:", $2); print}' /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/MSBB/G×S/03_result/msbb_fastGWA_nPAR_nodc.fastGWA >/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/msbb_fastGWA_nPAR_nodc.fastGWA
+cp /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/MSBB/G×S/03_result/msbb_fastGWA.fastGWA  /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/
+
+cd /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/
+awk 'FNR==1 && NR!=1 {next} {print}' msbb_fastGWA.fastGWA msbb_fastGWA_nPAR_nodc.fastGWA msbb_fastGWA_PAR.fastGWA > msbb_autosomes_and_X.txt
+
+awk 'BEGIN{OFS="\t"} {if(NR==1) print $0, "INFO", "STUDY"; else print $0, "0.95", "1"}' msbb_autosomes_and_X.txt >msbb_autosomes_and_X_withinfoandstudy.txt
+
+cat msbb_autosomes_and_X_withinfoandstudy.txt | awk 'NR==1 {print $0, "MAF"; next} {maf=$7; if($7>0.5) maf=1-$7; print $0, maf}' > temp.txt && mv temp.txt msbb_autosomes_and_X_withinfoandstudy.txt
+
+
+
+msbb_GxS_nodc=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/nodc/msbb_autosomes_and_X_withinfoandstudy.txt
+
+awk 'NR==1 {print "CHR", "BP", "A1", "A2", "FREQA1", "BETA_G", "BETA_G_by_E", "SE_G", "SE_G_by_E", "P_G", "P_G_by_E", "N", "MAF", "STUDY", "INFO"} NR>1 {print $1,$3,$4,$5,$7,$8,$9,$10,$11,$16,$17,$6,$21,"1",$19}' ${msbb_GxS_nodc} > msbb_build37_ad_GxS_nodc_sumstats.txt
+# MAF is minor allele frequency added by Floris using QCTools - MAF across all cohorts in MSBB. He says to filter on this rather than FREQA1 because multiple genotype files are merged after imputation and FREQA1 is not updated so it is not trustworthy
+
+awk '{ gsub("23", "X", $1) ; gsub("25", "X", $1) ; print }' msbb_build37_ad_GxS_nodc_sumstats.txt > temp_msbb.txt && mv temp_msbb.txt msbb_build37_ad_GxS_nodc_sumstats.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

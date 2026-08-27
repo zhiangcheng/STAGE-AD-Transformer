@@ -1,0 +1,67 @@
+#!/bin/bash
+#PBS -l walltime=00:08:00
+#PBS -l mem=5GB
+#PBS -l ncpus=1
+
+# This script uses LD score regression to check the intercept and calculate SNP-based heritability on the liability scale
+
+
+### Environment ###
+
+#module load ldsc/20190815
+
+### Preamble ###
+
+# Edit below variables for your specific LDSC
+
+directory=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/03_h2/Females/
+
+reference=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/sex_stratified_data/LDSC_reference/ # location of reference directory
+
+file=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/040_LDSC/01_Munge/Females/Metaanalysis_ad_female_AllCohorts_LDSC_munged.sumstats.gz
+
+name=Metaanalysis_ad_female_AllCohorts
+
+pop_prev=0.40 # lifetime prevalence of 20% in females
+
+samp_prev=0.3637 # prevalence of trait in your sample (no. cases / (no. cases + no. controls))
+
+# cases / (cases + controls) = 735 / (1286+735) = 0.3637
+
+
+
+### Submit script ###
+
+source activate LDSC
+cd ${directory}
+
+ldsc.py \
+ --h2 ${file} \
+ --ref-ld-chr ${reference}eur_w_ld_chr/ \
+ --w-ld-chr ${reference}eur_w_ld_chr/ \
+ --pop-prev ${pop_prev} \
+ --samp-prev ${samp_prev} \
+ --out ${name}_LDSC_h2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+nohup bash 01_a_LDSC_SNPh2_females.sh >01_a_LDSC_SNPh2_females.log 2>&1 &
+```
+
+
+

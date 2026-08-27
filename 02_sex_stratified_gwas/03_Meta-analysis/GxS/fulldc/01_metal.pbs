@@ -1,0 +1,141 @@
+#!/bin/bash
+#PBS -l walltime=04:00:00
+#PBS -l mem=64GB
+#PBS -l ncpus=1
+#PBS -J 0-6
+
+# This script uses METAL to run a meta-analysis on multiple GWAS summary statistics
+# It runs in parallel a meta-analysis for all cohorts, plus all possible LOO meta-analyses
+
+### Environment ###
+
+source activate GWAS
+#module load metal/20200505 
+
+
+### Preanble ###
+
+directory=/media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/020_Meta_analysis/GxS/fulldc
+
+
+### Run script ###
+
+# Create the METAL configuration file dynamically for each job
+
+files=( /media/desk15/iy2120/Project2026/Myproject_AD/02_sex_stratified_gwas/010_Format_sumstats/GxS/fulldc/*_ad_GxS_fulldc_sumstats_formatted_formetaanalysis_transformed.txt )
+
+num_files=${#files[@]}
+
+echo "Found ${num_files} cohort files"
+
+cd "$directory" || exit 1
+
+########################################
+# 1. Analyze all cohorts
+########################################
+config_file="01_metal_all.txt"
+outfile="Metaanalysis_ad_GxS_fulldc_AllCohorts_"
+
+echo "Creating config for all cohorts..."
+    {
+        echo "SCHEME STDERR"
+        echo "AVERAGEFREQ ON"
+        echo "MINMAXFREQ ON"
+        echo "GENOMICCONTROL OFF"
+        echo "VERBOSE OFF"
+        echo "COLUMNCOUNTING STRICT"
+        echo "CUSTOMVARIABLE N_TOTAL"
+        echo "CUSTOMVARIABLE NUM_STUDIES_METAANALYSED"
+        echo "MARKER MARKER_build37"
+        echo "ALLELE A1 A2"
+        echo "EFFECT BETA_G_by_E_logistic"
+        echo "PVALUE P_G_by_E"
+        echo "WEIGHT N"
+        echo "STDERR SE_of_BETA_G_by_E_logistic"
+        echo "FREQLABEL FREQA1"
+        echo "LABEL N_TOTAL as N"
+        echo "LABEL NUM_STUDIES_METAANALYSED as STUDY"
+
+        # Process all files
+        for file in "${files[@]}"; do
+            echo "PROCESS ${file}"
+        done
+
+        echo "OUTFILE ${outfile} .tbl"
+        echo "ANALYZE"
+        echo "QUIT"
+    } > "$config_file"
+
+/media/desk15/iy2120/Genomic_tools/metal "$config_file"
+
+
+
+########################################
+# 2. Leave-one-out analysis
+########################################
+for ((i=0; i<num_files; i++)); do
+    leave_out=$(basename ${files[$i]} | sed 's|_ad_GxS_fulldc_sumstats_formatted_formetaanalysis_transformed.txt||')
+    config_file="01_metal_leaveout_${leave_out}.txt"
+    outfile="Metaanalysis_ad_GxS_fulldc_leaveout_${leave_out}_"
+
+    echo "Creating config leaving out ${leave_out}..."
+    {
+        echo "SCHEME STDERR"
+        echo "AVERAGEFREQ ON"
+        echo "MINMAXFREQ ON"
+        echo "GENOMICCONTROL OFF"
+        echo "VERBOSE OFF"
+        echo "COLUMNCOUNTING STRICT"
+        echo "CUSTOMVARIABLE N_TOTAL"
+        echo "CUSTOMVARIABLE NUM_STUDIES_METAANALYSED"
+        echo "MARKER MARKER_build37"
+        echo "ALLELE A1 A2"
+        echo "EFFECT BETA_G_by_E_logistic"
+        echo "PVALUE P_G_by_E"
+        echo "WEIGHT N"
+        echo "STDERR SE_of_BETA_G_by_E_logistic"
+        echo "FREQLABEL FREQA1"
+        echo "LABEL N_TOTAL as N"
+        echo "LABEL NUM_STUDIES_METAANALYSED as STUDY"
+
+        # PROCESS all files except the current leave-out cohort
+        for j in "${!files[@]}"; do
+            if [ "$j" -ne "$i" ]; then
+                echo "PROCESS ${files[$j]}"
+            fi
+        done
+
+        echo "OUTFILE ${outfile} .tbl"
+        echo "ANALYZE"
+        echo "QUIT"
+    } > "$config_file"
+
+    /media/desk15/iy2120/Genomic_tools/metal "$config_file"
+done
+
+echo "All METAL analyses finished!"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+nohup bash 01_metal.sh >01_metal.log 2>&1 &
+```
+
+
+
+
+
+
+
