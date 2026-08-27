@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#该步骤需要如下软件
+#module load gcc/6.2.0
+#module load zlib/1.2.8
+#module load metal/2011.03.25
+
+#更改路径（必须更改原始输入文件的目录下，否则报错！！！）
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/input
+
+#进行METAL合并
+$HOME/TWAS/Breast-cancer-Example/software/local/metal < $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/metal_ad_kunkle_pgcalz_ukb.txt
+
+#整理结果
+mkdir $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metal
+mv final_metal_ad_kunkle_pgcalz_ukb1* $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metal
+
+
+
+
+
+
+
+
+

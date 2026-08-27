@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#该步骤需要如下软件
+#module load gcc/6.2.0
+#module load miniconda3/4.7.10
+
+
+#激活小环境
+conda activate TWAS
+
+
+#更改路径
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/
+
+
+#正式执行 “添加rsID” 流程
+Rscript $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/050_add_rsid_col_to_final_metal_ad_kunkle_pgcalz_ukb_results.R 

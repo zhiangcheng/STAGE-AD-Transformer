@@ -1,0 +1,55 @@
+#! /usr/bin/bash
+
+#该步骤需要如下软件
+#module load gcc/6.2.0
+#module load python/3.5.3
+
+#参考数据构建
+#hg19ToHg38.over.chain.gz 直接网站下载
+#参考变异元数据的构建（需要申请个体GTEx数据！！！）
+#我们可以直接获得snp_reference_metadata（gtex_v8_eur_filtered_maf0.01_monoallelic_variants.txt.gz）文件：https://zenodo.org/records/3657902
+
+#激活小环境
+conda activate TWAS
+
+#更改路径
+cd $HOME/Project2026/Myproject_AD/
+
+#创建输出文件夹
+mkdir $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/
+
+#进行协调gwas_parsing（LiftOver To GRCh38）
+#构建 shell 脚本 011_run_parse_pgcalz_gwas_clean.sh
+
+#!/bin/bash
+python3 $HOME/TWAS/Breast-cancer-Example/summary-gwas-imputation/src/gwas_parsing.py \
+-gwas_file $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/input/PGCALZ_gwas_clean.txt.gz \
+-output_column_map MarkerName variant_id \
+-output_column_map Non_Effect_allele non_effect_allele \
+-output_column_map Effect_allele effect_allele \
+-output_column_map Beta effect_size \
+-output_column_map SE standard_error \
+-output_column_map eaf frequency \
+-output_column_map rsID rsID \
+-output_column_map Pvalue Pvalue_origin \
+-split_column variant_id '_' chromosome position nea ea --chromosome_format \
+--insert_value sample_size 697778 --insert_value n_cases 21743 --insert_value n_controls 676035 \
+-output_order variant_id panel_variant_id rsID chromosome position effect_allele non_effect_allele frequency pvalue zscore effect_size standard_error sample_size n_cases n_controls Pvalue_origin \
+-liftover $HOME/TWAS/Breast-cancer-Example/data/reference/hg19ToHg38.over.chain.gz \
+-snp_reference_metadata $HOME/TWAS/Breast-cancer-Example/data/reference/gtex_v8_eur_filtered_maf0.01_monoallelic_variants.txt.gz METADATA \
+-output $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/PGCALZ_EUR.txt.gz
+
+#查看结果文件
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/
+
+less -S PGCALZ_EUR.txt.gz
+
+
+
+
+
+
+
+
+
+

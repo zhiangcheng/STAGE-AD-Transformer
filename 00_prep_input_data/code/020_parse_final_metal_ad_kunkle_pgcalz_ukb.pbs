@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#该步骤需要如下软件
+#module load gcc/6.2.0
+#module load python/3.5.3
+
+#参考数据构建
+#hg19ToHg38.over.chain.gz 直接网站下载
+#参考变异元数据的构建（需要申请个体GTEx数据！！！）
+#我们可以直接获得snp_reference_metadata（gtex_v8_eur_filtered_maf0.01_monoallelic_variants.txt.gz）文件：https://zenodo.org/records/3657902
+
+#激活小环境
+conda activate TWAS
+
+#更改路径
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/
+
+#创建输出文件夹
+mkdir $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/
+
+#进行协调gwas_parsing（LiftOver To GRCh38）
+#构建 shell 脚本 020_run_parse_final_metal_ad_kunkle_pgcalz_ukb.sh
+
+#!/bin/bash
+python3 $HOME/TWAS/Breast-cancer-Example/summary-gwas-imputation/src/gwas_parsing.py \
+-gwas_file $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metal/final_metal_ad_kunkle_pgcalz_ukb1.txt \
+-output_column_map MarkerName variant_id \
+-output_column_map Allele2 non_effect_allele \
+-output_column_map Allele1 effect_allele \
+-output_column_map Effect effect_size \
+-output_column_map StdErr standard_error \
+-output_column_map Freq1 frequency \
+-split_column variant_id '_' chromosome position nea ea --chromosome_format \
+--insert_value sample_size 1169310 --insert_value n_cases 47525 --insert_value n_controls 1121785 \
+-output_order variant_id panel_variant_id chromosome position effect_allele non_effect_allele frequency pvalue zscore effect_size standard_error sample_size n_cases n_controls \
+-liftover $HOME/TWAS/Breast-cancer-Example/data/reference/hg19ToHg38.over.chain.gz \
+-snp_reference_metadata $HOME/TWAS/Breast-cancer-Example/data/reference/gtex_v8_eur_filtered_maf0.01_monoallelic_variants.txt.gz METADATA \
+-output $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/final_metal_ad_kunkle_pgcalz_ukb1_EUR.txt.gz
+
+#查看结果文件
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/
+
+less -S final_metal_ad_kunkle_pgcalz_ukb1_EUR.txt.gz
+
+
+
+
+
+
+
+
+
+

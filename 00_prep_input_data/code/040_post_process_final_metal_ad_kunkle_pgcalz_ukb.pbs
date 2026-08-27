@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#该步骤需要如下软件
+#module load gcc/6.2.0
+#module load python/3.5.3
+
+
+#激活小环境
+conda activate TWAS
+
+
+#更改路径
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/
+
+
+#创建输出文件夹
+mkdir $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_imputed/
+
+
+#进行summary_imputation_post_process (将gwas_impute_regions文件合并为一个文件！)
+#首先 echo 以下代码，避免报错
+
+#正式执行 post_process 流程
+python3 $HOME/TWAS/Breast-cancer-Example/summary-gwas-imputation/src/gwas_summary_imputation_postprocess.py \
+-gwas_file $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/final_metal_ad_kunkle_pgcalz_ukb1_EUR.txt.gz \
+-folder $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_impute_regions/ \
+-pattern final_metal_ad_kunkle_pgcalz_ukb1_EUR_* \
+-parsimony 9 \
+-output $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_imputed/final_metal_ad_kunkle_pgcalz_ukb.txt.gz
+
+
+
+
+
+
+
+
+
+
+
+
