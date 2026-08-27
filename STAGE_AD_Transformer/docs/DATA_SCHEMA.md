@@ -81,7 +81,4 @@ index `c`, provide:
 - Reuse exactly the saved scaler for validation, test, prediction, and ablation.
 - Keep feature definitions and token order identical between training and use.
 
-The repository implements this contract in `SexRegV3Dataset` and checkpoint
-creation. Checkpoints from the older code without a `scaler` field remain
-loadable, but inference then falls back to fitting the scaler on the input and
-prints a warning.
+
