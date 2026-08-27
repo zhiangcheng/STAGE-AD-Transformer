@@ -1,6 +1,6 @@
 # SexReg-AD Transformer
 
-[中文流程说明](docs/PIPELINE.zh-CN.md) | [GitHub 上传说明](docs/GITHUB_UPLOAD.zh-CN.md) | [Data schema](docs/DATA_SCHEMA.md) | [Output reference](docs/OUTPUTS.md)
+Workflow | [Data schema](docs/DATA_SCHEMA.md) | [Output reference](docs/OUTPUTS.md)
 
 SexReg-AD Transformer is a research pipeline for sex-aware prioritization of
 Alzheimer's disease (AD) variants, candidate genes, tissues, cell types, and
@@ -41,9 +41,6 @@ flowchart LR
 | 07 | `scripts/07_run_ablations.py` | checkpoint + test split | ablation metrics |
 | 08 | `scripts/08_generate_final_deliverables.py` | predictions + metrics | ten result tables |
 | 09 | `scripts/09_make_nature_figures.py` | data + results | PNG/PDF figures |
-
-The detailed contract for every step is in
-[`docs/PIPELINE.zh-CN.md`](docs/PIPELINE.zh-CN.md).
 
 ## Installation
 
