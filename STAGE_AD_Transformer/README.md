@@ -10,9 +10,7 @@ multi-task Transformer.
 
 > **Research-use warning:** the bundled generator creates synthetic data and
 > synthetic labels for software validation only. Outputs from the demo are not
-> biological discoveries and must not be used for clinical or diagnostic
-> decisions. A publication analysis must replace every simulated field with
-> appropriately harmonized real evidence.
+> biological discoveries and must replace your own harmonized real data.
 
 ## Workflow
 
