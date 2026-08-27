@@ -1,4 +1,4 @@
-# Preparing AD GWAS Summary Statistics for Cross-tissue TWAS
+# Preparing AD GWAS Summary Statistics for Subsequent Analysis
 
 ## Scope and manuscript alignment
 
