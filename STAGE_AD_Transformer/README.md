@@ -1,8 +1,8 @@
-# SexReg-AD Transformer
+# stage-AD Transformer
 
 Workflow | [Data schema](docs/DATA_SCHEMA.md) | [Output reference](docs/OUTPUTS.md)
 
-SexReg-AD Transformer is a research pipeline for sex-aware prioritization of
+stage-AD Transformer is a research pipeline for sex-aware prioritization of
 Alzheimer's disease (AD) variants, candidate genes, tissues, cell types, and
 regulatory mechanisms. It combines sex-stratified GWAS features with QTL,
 fine-mapping, sequence, tissue, and single-cell evidence in a hierarchical
@@ -36,7 +36,7 @@ CUDA when it is available.
 
 ```bash
 conda env create -f environment.yml
-conda activate sexreg-ad
+conda activate stage-ad
 python -m pip install -e .
 ```
 
@@ -106,7 +106,7 @@ printed by the runner can also be copied and executed one at a time.
 |-- config/                 Reproducible run profiles and project metadata
 |-- docs/                   Step-by-step, schema, and output documentation
 |-- scripts/                Numbered pipeline entry points (00-09)
-|-- sexreg_ad/              Reusable dataset, model, loss, and metric code
+|-- stage_ad/               Reusable dataset, model, loss, and metric code
 |-- tests/                  Fast unit/smoke tests
 |-- run_pipeline.py         Cross-platform workflow runner
 |-- environment.yml         Conda environment
@@ -136,7 +136,7 @@ Real inputs must follow the column contract in
 
 ```bash
 python -m pip install -e ".[dev]"
-python -m compileall -q sexreg_ad scripts run_pipeline.py
+python -m compileall -q stage_ad scripts run_pipeline.py
 python -m pytest -q
 ```
 
