@@ -142,8 +142,8 @@ python -m pytest -q
 
 ## Citation and license
 
-If you publish work based on this repository, cite the associated paper or
-archive record once available. The code is released under the MIT License; see
+Citation: .
+License: The code is released under the MIT License; see
 [`LICENSE`](LICENSE).
 
 ## Contributing
