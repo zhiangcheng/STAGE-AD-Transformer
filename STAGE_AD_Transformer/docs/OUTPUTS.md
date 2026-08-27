@@ -18,8 +18,8 @@ artifacts in a suitable data repository and link them from corresponding paper.
 
 | Path | Description |
 |---|---|
-| `results/checkpoints/sexreg_ad_pretrained.pt` | pretrained weights, arguments, scaler |
-| `results/checkpoints/sexreg_ad_finetuned.pt` | selected fine-tuned model, arguments, scaler |
+| `results/checkpoints/stage_ad_pretrained.pt` | pretrained weights, arguments, scaler |
+| `results/checkpoints/stage_ad_finetuned.pt` | selected fine-tuned model, arguments, scaler |
 | `results/metrics/pretraining_history.csv` | epoch-level pretraining metrics |
 | `results/metrics/finetuning_history.csv` | epoch-level fine-tuning metrics |
 | `results/metrics/transformer_test_metrics.csv` | final held-out metrics |
