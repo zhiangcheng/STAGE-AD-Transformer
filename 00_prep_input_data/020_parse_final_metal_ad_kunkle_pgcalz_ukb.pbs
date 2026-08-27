@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# This step requires the following software
+#module load gcc/6.2.0
+#module load python/3.5.3
+
+# Build the reference data
+# Download hg19ToHg38.over.chain.gz directly from the website
+# Build the reference variant metadata (individual-level GTEx data must be requested!)
+# The snp_reference_metadata file (gtex_v8_eur_filtered_maf0.01_monoallelic_variants.txt.gz) is available directly from https://zenodo.org/records/3657902
+
+# Activate the environment
+conda activate TWAS
+
+# Change the working directory
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/
+
+# Create the output directory
+mkdir $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/
+
+# Harmonize the GWAS data with gwas_parsing (lift over to GRCh38)
+# Create the shell script 020_run_parse_final_metal_ad_kunkle_pgcalz_ukb.sh
+
+#!/bin/bash
+python3 $HOME/TWAS/Breast-cancer-Example/summary-gwas-imputation/src/gwas_parsing.py \
+-gwas_file $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metal/final_metal_ad_kunkle_pgcalz_ukb1.txt \
+-output_column_map MarkerName variant_id \
+-output_column_map Allele2 non_effect_allele \
+-output_column_map Allele1 effect_allele \
+-output_column_map Effect effect_size \
+-output_column_map StdErr standard_error \
+-output_column_map Freq1 frequency \
+-split_column variant_id '_' chromosome position nea ea --chromosome_format \
+--insert_value sample_size 1169310 --insert_value n_cases 47525 --insert_value n_controls 1121785 \
+-output_order variant_id panel_variant_id chromosome position effect_allele non_effect_allele frequency pvalue zscore effect_size standard_error sample_size n_cases n_controls \
+-liftover $HOME/TWAS/Breast-cancer-Example/data/reference/hg19ToHg38.over.chain.gz \
+-snp_reference_metadata $HOME/TWAS/Breast-cancer-Example/data/reference/gtex_v8_eur_filtered_maf0.01_monoallelic_variants.txt.gz METADATA \
+-output $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/final_metal_ad_kunkle_pgcalz_ukb1_EUR.txt.gz
+
+# Inspect the result files
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/
+
+less -S final_metal_ad_kunkle_pgcalz_ukb1_EUR.txt.gz
+
+
+
+
+
+
+
+
+

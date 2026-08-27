@@ -1,0 +1,54 @@
+#! /usr/bin/bash
+
+# This step requires the following software
+#module load gcc/6.2.0
+#module load python/3.5.3
+
+# Build the reference data
+# Download hg19ToHg38.over.chain.gz directly from the website
+# Build the reference variant metadata (individual-level GTEx data must be requested!)
+# The snp_reference_metadata file (gtex_v8_eur_filtered_maf0.01_monoallelic_variants.txt.gz) is available directly from https://zenodo.org/records/3657902
+
+# Activate the environment
+conda activate TWAS
+
+# Change the working directory
+cd $HOME/Project2026/Myproject_AD/
+
+# Create the output directory
+mkdir $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/
+
+# Harmonize the GWAS data with gwas_parsing (lift over to GRCh38)
+# Create the shell script 011_run_parse_pgcalz_gwas_clean.sh
+
+#!/bin/bash
+python3 $HOME/TWAS/Breast-cancer-Example/summary-gwas-imputation/src/gwas_parsing.py \
+-gwas_file $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/input/PGCALZ_gwas_clean.txt.gz \
+-output_column_map MarkerName variant_id \
+-output_column_map Non_Effect_allele non_effect_allele \
+-output_column_map Effect_allele effect_allele \
+-output_column_map Beta effect_size \
+-output_column_map SE standard_error \
+-output_column_map eaf frequency \
+-output_column_map rsID rsID \
+-output_column_map Pvalue Pvalue_origin \
+-split_column variant_id '_' chromosome position nea ea --chromosome_format \
+--insert_value sample_size 697778 --insert_value n_cases 21743 --insert_value n_controls 676035 \
+-output_order variant_id panel_variant_id rsID chromosome position effect_allele non_effect_allele frequency pvalue zscore effect_size standard_error sample_size n_cases n_controls Pvalue_origin \
+-liftover $HOME/TWAS/Breast-cancer-Example/data/reference/hg19ToHg38.over.chain.gz \
+-snp_reference_metadata $HOME/TWAS/Breast-cancer-Example/data/reference/gtex_v8_eur_filtered_maf0.01_monoallelic_variants.txt.gz METADATA \
+-output $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/PGCALZ_EUR.txt.gz
+
+# Inspect the result files
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/
+
+less -S PGCALZ_EUR.txt.gz
+
+
+
+
+
+
+
+
+

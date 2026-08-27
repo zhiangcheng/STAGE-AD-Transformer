@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# This step requires the following software
+#module load gcc/6.2.0
+#module load zlib/1.2.8
+#module load metal/2011.03.25
+
+# Change to the directory containing the original input files; otherwise, an error will occur!
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/input
+
+# Run the METAL meta-analysis
+$HOME/TWAS/Breast-cancer-Example/software/local/metal < $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/metal_ad_kunkle_pgcalz_ukb.txt
+
+# Organize the results
+mkdir $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metal
+mv final_metal_ad_kunkle_pgcalz_ukb1* $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metal
+
+
+
+
+
+
+
+

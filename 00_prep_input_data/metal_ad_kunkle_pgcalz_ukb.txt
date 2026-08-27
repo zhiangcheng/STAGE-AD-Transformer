@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#GENOMICCONTROL ON # automatically correct test statistics to account for small
+                  # amounts of population stratification or unaccounted for relatedness
+SCHEME STDERR # Sample size weighted analysis = SAMPLESIZE | SE based analysis = STDERR
+AVERAGEFREQ ON
+MINMAXFREQ ON
+
+### input data ###
+# UKBiobank (UKB_AD_clean.txt.gz)
+SEPARATOR TAB # WHITESPACE # - the default
+MARKER MarkerName # CHR_POS_A0_A1 
+ALLELE Alt Ref # (ref then nonref allele) a1=effect, a0=ref
+FREQ MAF # The SNP frequency field, eaf, must be specified when using "AVERAGEFREQ ON" and "MINMAXFREQ ON"
+EFFECT REGENIE_BETA
+PVALUE Pval
+STDERR REGENIE_SE #SE
+PROCESS UKB_AD_clean.txt.gz
+
+# Kunkle 2019（Kunkle_Stage1_gwas_clean.txt.gz）
+SEPARATOR TAB
+MARKER MarkerName # Built in prep section to match var_name in BCAC
+ALLELE Effect_allele Non_Effect_allele # ALT is effect allele
+FREQ eaf
+EFFECT Beta
+PVALUE Pvalue
+STDERR SE
+PROCESS Kunkle_Stage1_gwas_clean.txt.gz
+
+# PGCALZ 2021（PGCALZ_gwas_clean.txt.gz）
+SEPARATOR TAB
+MARKER MarkerName # Built in prep section to match var_name in BCAC
+ALLELE Effect_allele Non_Effect_allele # ALT is effect allele
+FREQ eaf
+EFFECT Beta
+PVALUE Pvalue
+STDERR SE
+PROCESS PGCALZ_gwas_clean.txt.gz
+
+
+### Analysis parameters ###
+
+OUTFILE final_metal_ad_kunkle_pgcalz_ukb .txt
+ANALYZE HETEROGENEITY # requires a second pass of analysis to decide whether
+                      # observed effect sizes (or test statistics) are homogeneous across samples.
+QUIT

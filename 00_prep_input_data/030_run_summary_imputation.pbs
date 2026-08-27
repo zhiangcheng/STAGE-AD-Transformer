@@ -1,0 +1,78 @@
+#!/bin/bash
+
+# This step requires the following software
+#module load gcc/6.2.0
+#module load python/3.5.3
+
+# Activate the environment
+conda activate TWAS
+
+# Change the working directory
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/
+
+# Create the output directory
+mkdir $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_impute_regions/
+
+# Run summary imputation with summary_imputation
+
+# Run the Bash script
+echo ./030_run_summary_imputation.sh # Check the script for errors
+#bash ./030_run_summary_imputation.sh
+#nohup bash ./030_run_summary_imputation.sh > temp/summary_imputation.log &
+#taskset -c 0-9 bash ./030_run_summary_imputation.sh
+taskset -c 0-9 nohup bash ./030_run_summary_imputation.sh > temp/summary_imputation.log 2>&1 &
+
+# Monitor the process for errors
+tail -f temp/summary_imputation.log
+less temp/summary_imputation.log # -->Press Shift+F to follow the process output
+
+
+
+
+
+****************Copy the following content into the Bash script**********************************************************************************************
+#!/bin/bash
+
+# Restrict the script to the first 10 cores
+#taskset -c 0-9 bash "$0" "$@"
+#exit 0  # The code after this line is the content that will actually be executed
+
+
+# Run imputation
+for CHR in {1..22}
+do
+	for SB in {0..9}
+	do
+		python3 $HOME/TWAS/Breast-cancer-Example/summary-gwas-imputation/src/gwas_summary_imputation.py \
+		-by_region_file $HOME/TWAS/Breast-cancer-Example/data/reference/eur_ld.bed.gz \
+		-gwas_file $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_parse/final_metal_ad_kunkle_pgcalz_ukb1_EUR.txt.gz \
+		-parquet_genotype $HOME/TWAS/Breast-cancer-Example/data/reference/reference_panel_1000G/chr${CHR}.variants.parquet \
+		-parquet_genotype_metadata $HOME/TWAS/Breast-cancer-Example/data/reference/reference_panel_1000G/variant_metadata.parquet \
+		-window 100000 \
+		-parsimony 9 \
+		-chromosome ${CHR} \
+		-regularization 0.1 \
+		-frequency_filter 0.01 \
+		-sub_batches 10 \
+		-sub_batch ${SB} \
+		--standardise_dosages \
+		-output $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_impute_regions/final_metal_ad_kunkle_pgcalz_ukb1_EUR_chr${CHR}_sb${SB}_reg0.1_ff0.01_by_region.txt.gz
+	done
+done
+
+
+
+
+********************************************************************************************
+* Parameter descriptions: https://github.com/hakyimlab/summary-gwas-imputation/wiki/GWAS-Harmonization-And-Imputation
+-parsimony 9 # Related to computational precision, numerical stability, or output compression level. In matrix operations on large genetic datasets, lower precision can accelerate computation and save memory but may reduce result accuracy; larger values provide higher precision.
+                      # Output-file compression level, which controls the compression ratio and is usually in the range 1-9: low values (1-3) compress quickly but produce larger files, whereas high values (7-9) compress slowly but produce smaller files.
+	        # Works together with regularization: -regularization 0.1 already shrinks the effect sizes, so -parsimony can be set somewhat more permissively and regularization can handle redundancy, while the parsimony parameter primarily controls extreme overfitting.
+
+
+
+
+
+
+
+

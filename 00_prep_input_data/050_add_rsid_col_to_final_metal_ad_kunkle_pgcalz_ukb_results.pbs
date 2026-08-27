@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# This step requires the following software
+#module load gcc/6.2.0
+#module load miniconda3/4.7.10
+
+
+# Activate the environment
+conda activate TWAS
+
+
+# Change the working directory
+cd $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/
+
+
+# Run the "add rsID" workflow
+Rscript $HOME/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/code/050_add_rsid_col_to_final_metal_ad_kunkle_pgcalz_ukb_results.R 
