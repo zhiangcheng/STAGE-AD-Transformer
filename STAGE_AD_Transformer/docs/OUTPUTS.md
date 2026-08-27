@@ -1,7 +1,7 @@
 # Output reference
 
 Generated files are deliberately excluded from Git. Archive large public
-artifacts in a suitable data repository and link them from a release or paper.
+artifacts in a suitable data repository and link them from corresponding paper.
 
 ## Data and splits
 
