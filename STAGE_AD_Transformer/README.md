@@ -14,19 +14,6 @@ multi-task Transformer.
 
 ## Workflow
 
-```mermaid
-flowchart LR
-    S0[00 Environment] --> S1[01 Prepare data]
-    S1 --> S2[02 Split by chromosome]
-    S2 --> S3[03 Regulatory pretraining]
-    S3 --> S4[04 Multi-task fine-tuning]
-    S4 --> S5[05 Baselines]
-    S5 --> S6[06 Prediction]
-    S6 --> S7[07 Ablations]
-    S7 --> S8[08 Result tables]
-    S8 --> S9[09 Figures]
-```
-
 | Step | Script | Main input | Main output |
 |---:|---|---|---|
 | 00 | `scripts/00_check_dependencies.py` | Python environment | dependency report |
