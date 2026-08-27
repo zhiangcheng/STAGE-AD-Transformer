@@ -1,0 +1,58 @@
+#!/bin/bash
+
+
+conda activate TWAS
+
+# Create the output directory
+mkdir $HOME/TWAS/Breast-cancer-Example/data/subtype_gwas/input/sliced_gwas/
+
+
+# Copy the study_list file
+cp $HOME/TWAS/Breast-cancer-Example/pipeline/02_acat_eqtl_sqtl/temp/study_list  $HOME/TWAS/Breast-cancer-Example/pipeline/03_enloc/temp/
+
+
+# Run the Bash script to perform the slice_gwas analysis
+cd $HOME/TWAS/Breast-cancer-Example/pipeline/03_enloc/
+
+echo ./010_run_slice_gwas.sh # Check the script for errors
+#bash ./010_run_slice_gwas.sh
+nohup bash ./010_run_slice_gwas.sh > temp/slice_gwas.log &
+
+
+# Monitor the job
+tail -f temp/slice_gwas.log
+
+
+
+
+
+
+****************Copy the following content into the Bash script**********************************************************************************************
+#!/bin/bash
+
+study_list=$(cat $HOME/TWAS/Breast-cancer-Example/pipeline/03_enloc/temp/study_list)
+echo ${study_list}
+
+# Run the slice_gwas analysis
+for STUDY in ${study_list}
+do
+	python3 $HOME/TWAS/Breast-cancer-Example/summary-gwas-imputation/src/slice_gwas_by_region.py \
+	-region_file $HOME/TWAS/Breast-cancer-Example/data/subtype_gwas/input/eur_ld.bed.gz \
+	-gwas_file $HOME/TWAS/Breast-cancer-Example/data/subtype_gwas/output/metaxcan_gwas_imputed/${STUDY}.txt.gz \
+	-parsimony 8 \
+	-output $HOME/TWAS/Breast-cancer-Example/data/subtype_gwas/input/sliced_gwas/${STUDY}.sliced.gz
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+
+conda activate TWAS
+
+
+# Create the output directory
+mkdir -p /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/output/acat_sqtl/
+
+
+# Create two files: all_tissues.txt and 14tiss.txt
+
+
+# Run the Bash script to perform the ACAT-O analysis
+cd /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/code/
+
+****************Copy the following content into the Bash script**********************************
+#!/bin/bash
+
+tiss_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/temp/tiss_list)
+echo ${tiss_list}
+
+study_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/temp/study_list)
+echo ${study_list}
+
+# Run the acat_sqtl analysis
+for TISSUE in ${tiss_list}
+do
+	for STUDY in ${study_list}
+	do
+		python3 /media/desk15/iy2120/Genomic_tools/MetaXcan/software/SMulTiXcanByFeature.py \
+		--gwas_file /media/desk15/iy2120/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_imputed/${STUDY}.txt.gz \
+		--tiss_list /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/tissue_lists/${TISSUE}.txt \
+		--snp_column panel_variant_id \
+		--effect_allele_column effect_allele \
+		--non_effect_allele_column non_effect_allele \
+		--zscore_column zscore \
+		--model_db_path $HOME/TWAS/Breast-cancer-Example/data/subtype_gwas/input/combine_sqtl.db \
+		--keep_non_rsid --model_db_snp_key varID \
+		--covariance $HOME/TWAS/Breast-cancer-Example/data/subtype_gwas/input/combine_cross_intron_covar.txt.gz \
+		--grouping $HOME/TWAS/Breast-cancer-Example/data/subtype_gwas/input/combine_phenotype_groups.txt.gz GTEx_sQTL \
+		--associations /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/input/acat_prep_sqtl/${STUDY}_sqtl_acat_input.csv SPrediXcan \
+		--cutoff_condition_number 30 \
+		--verbosity 10 \
+		--acat \
+		--output /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/output/acat_sqtl/${TISSUE}__${STUDY}_sqtl_acat_results.tsv
+	done
+done
+******************************************************************************
+
+echo ./029_run_acat_sqtl.sh # Check the script for errors
+#bash ./029_run_acat_sqtl.sh
+nohup bash ./029_run_acat_sqtl.sh > ../temp/029_run_acat_sqtl.log &
+
+
+# Monitor the job
+tail -f ../temp/029_run_acat_sqtl.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+*******************************************************************************************
+--tiss_rank # Unlike 025_run_acat_tiss_breakdown_sqtl, this computes ACAT-O P values across different SNPs of the same gene within each tissue; the other workflow ignores tissue divisions and computes ACAT-O P values across tissues and genes for the same SNP and gene!

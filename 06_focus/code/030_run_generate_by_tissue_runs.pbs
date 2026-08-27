@@ -1,0 +1,96 @@
+#!/bin/bash
+
+#########################################################################
+## Configure the FOCUS analysis environment. Do not use the official ma-focus package: the "symbol error" is mainly resolved by changing 'genomic_pos_hg19' to 'genomic_pos' on line 343 of convert.py (hg38 by default)!
+conda create -n FOCUS python=3.8
+conda activate FOCUS
+git clone https://github.com/shugamoe/focus.git  # This repository has been modified to support GTEx V8 mashr model data!
+cd focus
+pip install .
+
+pip install mygene
+pip install ryb2
+
+#########################################################################
+
+conda activate FOCUS
+
+
+## 
+cd /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/
+# eqtl.db
+ls /media/desk15/iy2120/TWAS/Breast-cancer-Example/pipeline/05_focus/input/patched/eqtl_dbs/* | xargs -n1 basename | sed 's/mashr_//g' | sed 's/.db//g' >./eqtl_tissue_list
+
+# 030_before_eqtl.sh
+eqtl_tissue_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/eqtl_tissue_list)
+echo ${eqtl_tissue_list}
+
+for TISSUE in ${eqtl_tissue_list}; do \
+	focus import /media/desk15/iy2120/TWAS/Breast-cancer-Example/pipeline/05_focus/input/patched/eqtl_dbs/mashr_${TISSUE}.db predixcan \
+	--tissue ${TISSUE} \
+	--name GTEx \
+	--assay rnaseq \
+	--predixcan-method mashr \
+	--output /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/eqtl_sqtl_db/eqtl_dbs/mashr_${TISSUE}; done
+
+# sqtl.db
+ls /media/desk15/iy2120/TWAS/Breast-cancer-Example/pipeline/05_focus/input/patched/sqtl_dbs/* | xargs -n1 basename | sed 's/mashr_//g' | sed 's/.db//g' >./sqtl_tissue_list
+
+# 030_before_sqtl.sh
+sqtl_tissue_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/sqtl_tissue_list)
+echo ${sqtl_tissue_list}
+
+for TISSUE in ${sqtl_tissue_list}; do \
+	focus import /media/desk15/iy2120/TWAS/Breast-cancer-Example/pipeline/05_focus/input/patched/sqtl_dbs/mashr_${TISSUE}.db predixcan \
+	--tissue ${TISSUE} \
+	--name GTEx \
+	--assay rnaseq \
+	--predixcan-method mashr \
+	--output /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/eqtl_sqtl_db/sqtl_dbs/mashr_${TISSUE}; done
+
+
+
+
+#
+awk '{                                                             
+    # Assume a1 and a2 are aligned with the GWAS; they may need adjustment based on the actual direction
+    new_id = "chr" $1 "_" $4 "_" $6 "_" $5 "_b38";
+    print $1, new_id, $3, $4, $5, $6
+}' ../input/1000G_EUR_Phase3_plink/1000G.EUR.QC.2.bim > ../input/1000G_EUR_Phase3_plink_FOCUS/1000G.EUR.QC.2.focus.bim
+
+
+
+
+## 
+cd /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/code/
+python3 030_run_generate_by_tissue_runs.py
+
+
+## Run
+cd /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/code/by_tissue_runs/
+
+ls /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/code/by_tissue_runs/*.sh | xargs -n1 basename >./bash_list
+
+nano run_all.sh
+*******************************
+#!/usr/bin/env bash
+
+bash_list=$(cat ./bash_list)
+echo ${bash_list}
+
+for BASH in ${bash_list}; do bash ./${BASH}; done
+*******************************
+nohup bash run_all.sh &
+
+
+
+
+
+
+
+
+
+
+
+
+

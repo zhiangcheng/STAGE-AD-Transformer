@@ -1,0 +1,76 @@
+#! /usr/bin/bash
+
+# This step requires the following software
+#module load gcc/6.2.0
+#module load python/3.5.3
+
+# Activate the environment
+conda activate TWAS
+
+
+# Create the file names used by the loop
+cd /media/desk15/iy2120/TWAS/Breast-cancer-Example/data/prediction_model/gtex_v8_sqtl_dbs_mashr/
+ls *.db | sed 's/.db//g' | sed 's/mashr_//g' > /media/desk15/iy2120/Project2026/Myproject_AD/03_spredixcan_eqtl_sqtl/temp/mashr_sqtl_files
+
+#cd /media/desk15/iy2120/TWAS/Breast-cancer-Example/data/prediction_model/gtex_v8_eqtl_dbs_mashr/
+#ls *.db | sed 's/.db//g' | sed 's/mashr_//g' > /media/desk15/iy2120/Project2026/Myproject_AD/03_spredixcan_eqtl_sqtl/temp/mashr_eqtl_files
+
+#cd /media/desk15/iy2120/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_imputed/
+#ls *.txt.gz | sed 's/.txt.gz//g' > /media/desk15/iy2120/Project2026/Myproject_AD/03_spredixcan_eqtl_sqtl/temp/gwas_imputed_files
+
+
+# Create the output directory
+mkdir -p /media/desk15/iy2120/Project2026/Myproject_AD/03_spredixcan_eqtl_sqtl/output/spredixcan_sqtl_mashr/
+
+
+# Run the Bash script to perform the SPrediXcan analysis
+cd /media/desk15/iy2120/Project2026/Myproject_AD/03_spredixcan_eqtl_sqtl/code/
+
+****************Copy the following content into the Bash script*********************************************
+#!/bin/bash
+
+gwas_imputed_files=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/03_spredixcan_eqtl_sqtl/temp/gwas_imputed_files)
+echo ${gwas_imputed_files}
+
+mashr_sqtl_files=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/03_spredixcan_eqtl_sqtl/temp/mashr_sqtl_files)
+echo ${mashr_sqtl_files}
+
+# Run the SPrediXcan analysis
+for STUDY in ${gwas_imputed_files}
+do
+	for MODEL in ${mashr_sqtl_files}
+	do
+		python3 $HOME/TWAS/Breast-cancer-Example/MetaXcan/software/SPrediXcan.py \
+		--gwas_file /media/desk15/iy2120/Project2026/Myproject_AD/00_prep_inputs_for_metaxcan/output/metaxcan_gwas_imputed/${STUDY}.txt.gz \
+		--snp_column panel_variant_id \
+		--effect_allele_column effect_allele \
+		--non_effect_allele_column non_effect_allele \
+		--zscore_column zscore \
+		--model_db_path /media/desk15/iy2120/TWAS/Breast-cancer-Example/data/prediction_model/gtex_v8_sqtl_dbs_mashr/mashr_${MODEL}.db \
+		--covariance /media/desk15/iy2120/TWAS/Breast-cancer-Example/data/prediction_model/gtex_v8_sqtl_dbs_mashr/mashr_${MODEL}.txt.gz \
+		--keep_non_rsid \
+		--additional_output \
+		--model_db_snp_key varID \
+		--output_file /media/desk15/iy2120/Project2026/Myproject_AD/03_spredixcan_eqtl_sqtl/output/spredixcan_sqtl_mashr/spredixcan_igwas_gtexmashrv8_${STUDY}__PM__${MODEL}.csv
+	done
+done
+*****************************************************************************************
+
+echo ./020_run_metaxcan_imputed_gtexv8_sqtl_mashr.sh # Check the script for errors
+#bash ./020_run_metaxcan_imputed_gtexv8_sqtl_mashr.sh
+nohup bash ./020_run_metaxcan_imputed_gtexv8_sqtl_mashr.sh > ../temp/020_run_metaxcan_imputed_gtexv8_sqtl_mashr.log &
+
+
+# Monitor the job
+tail -f ../temp/020_run_metaxcan_imputed_gtexv8_sqtl_mashr.log
+
+
+
+
+
+
+
+
+
+
+

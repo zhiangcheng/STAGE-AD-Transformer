@@ -1,0 +1,57 @@
+#!/bin/bash
+
+
+mkdir -p /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/combined_dbs/
+
+
+## Merge the models for each of the 14 tissues separately
+# 020_run_focus_eqtl_14tiss_one_by_one_db.sh
+tissue_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/14tiss.txt)
+echo ${tissue_list}
+
+for TISSUE in ${tissue_list}
+do
+	focus import /media/desk15/iy2120/TWAS/Breast-cancer-Example/pipeline/05_focus/input/patched/eqtl_dbs/mashr_${TISSUE}.db predixcan \
+	--tissue ${TISSUE} \
+	--name GTEx \
+	--assay rnaseq \
+	--predixcan-method mashr \
+	--output /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/combined_dbs/14tiss_eqtl
+done
+
+# 020_run_focus_sqtl_14tiss_one_by_one_db.sh
+tissue_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/14tiss.txt)
+echo ${tissue_list}
+
+for TISSUE in ${tissue_list}
+do
+	focus import /media/desk15/iy2120/TWAS/Breast-cancer-Example/pipeline/05_focus/input/patched/sqtl_dbs/mashr_${TISSUE}.db predixcan \
+	--tissue ${TISSUE} \
+	--name GTEx \
+	--assay rnaseq \
+	--predixcan-method mashr \
+	--output /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/combined_dbs/14tiss_sqtl
+done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+
+conda activate TWAS
+
+# Create the output directory
+mkdir -p /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/input/acat_prep_sqtl/
+
+
+# Run the Bash script to perform the acat_prep_sqtl analysis
+cd /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/code/
+
+****************Copy the following content into the Bash script**********************************
+#!/bin/bash
+
+
+study_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/temp/study_list)
+echo ${study_list}
+
+
+# Run the acat_prep_sqtl analysis
+for STUDY in ${study_list}
+do
+	python3 /media/desk15/iy2120/Genomic_tools/MetaXcan/software/spredixcan_splicing_merge.py \
+	--spred_sqtl_pattern "/media/desk15/iy2120/Project2026/Myproject_AD/03_spredixcan_eqtl_sqtl/output/spredixcan_sqtl_mashr/spredixcan_igwas_gtexmashrv8_${STUDY}*.csv" \
+	--output /media/desk15/iy2120/Project2026/Myproject_AD/04_acat_eqtl_sqtl/input/acat_prep_sqtl/${STUDY}_sqtl_acat_input.csv
+done
+******************************************************************************
+
+echo ./020_run_acat_prep_sqtl.sh # Check the script for errors
+#bash ./020_run_acat_prep_sqtl.sh
+nohup bash ./020_run_acat_prep_sqtl.sh > ../temp/020_run_acat_prep_sqtl.log &
+
+
+# Monitor the job
+tail -f ../temp/020_run_acat_prep_sqtl.log
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,185 @@
+# ---------------------------------SPrediXcan--------------------------------- #
+conda activate TWAS
+
+# Create the file names used by the loop
+cd /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/condTWAS_parse/final_metal_ad_kunkle_pgcalz_ukb/
+ls *.txt.gz | sed 's/.txt.gz//g' > /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/spredixcan/cond_gwas_files
+
+
+# Create the output directory
+mkdir -p /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/spredixcan/spredixcan_sqtl_mashr/
+
+
+# Run the Bash script to perform the SPrediXcan analysis
+cd /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/code/
+
+****************Copy the following content into the Bash script*********************************************
+#!/bin/bash
+
+cond_gwas_files=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/spredixcan/cond_gwas_files)
+echo ${cond_gwas_files}
+
+tissues=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/input/tissue_lists/14tiss)
+echo ${tissues}
+
+# Run the SPrediXcan analysis
+for STUDY in ${cond_gwas_files}
+do
+	for MODEL in ${tissues}
+	do
+		python3 $HOME/TWAS/Breast-cancer-Example/MetaXcan/software/SPrediXcan.py \
+		--gwas_file /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/condTWAS_parse/final_metal_ad_kunkle_pgcalz_ukb/${STUDY}.txt.gz \
+		--snp_column panel_variant_id \
+		--effect_allele_column effect_allele \
+		--non_effect_allele_column non_effect_allele \
+		--zscore_column zscore \
+		--model_db_path /media/desk15/iy2120/TWAS/Breast-cancer-Example/data/prediction_model/gtex_v8_sqtl_dbs_mashr/mashr_${MODEL}.db \
+		--covariance /media/desk15/iy2120/TWAS/Breast-cancer-Example/data/prediction_model/gtex_v8_sqtl_dbs_mashr/mashr_${MODEL}.txt.gz \
+		--keep_non_rsid \
+		--additional_output \
+		--model_db_snp_key varID \
+		--output_file /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/spredixcan/spredixcan_sqtl_mashr/spredixcan_igwas_gtexmashrv8_${STUDY}__PM__${MODEL}.csv
+	done
+done
+*****************************************************************************************
+nohup bash ./060_run_ctwas_sqtl_spredixcan.sh > ../temp/060_run_ctwas_sqtl_spredixcan.log &
+
+
+# Monitor the job
+tail -f ../temp/060_run_ctwas_sqtl_spredixcan.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------ACAT--------------------------------- #
+# -----------prepare acat----------- #
+conda activate TWAS
+
+# Create the output directory
+mkdir -p /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/acat/acat_prep_sqtl/
+
+
+# Create the file: 14tiss
+
+# Create the study_list and tiss_list files
+cp /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/spredixcan/cond_gwas_files /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/acat/study_list
+
+#cd /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/input/tissue_lists/
+#ls 14* > /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/input/tiss_list
+
+
+# Run the Bash script to perform the acat_prep_sqtl analysis
+cd /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/code/
+
+****************Copy the following content into the Bash script**********************************
+#!/bin/bash
+
+
+study_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/acat/study_list)
+echo ${study_list}
+
+
+# Run the acat_prep_sqtl analysis
+for STUDY in ${study_list}
+do
+	python3 /media/desk15/iy2120/Genomic_tools/MetaXcan/software/spredixcan_splicing_merge.py \
+	--spred_sqtl_pattern "/media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/spredixcan/spredixcan_sqtl_mashr/spredixcan_igwas_gtexmashrv8_${STUDY}*.csv" \
+	--output /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/acat/acat_prep_sqtl/${STUDY}_sqtl_acat_input.csv
+done
+******************************************************************************
+nohup bash ./060_run_ctwas_sqtl_acat_prep.sh > ../temp/060_run_ctwas_sqtl_acat_prep.log &
+
+
+# Monitor the job
+tail -f ../temp/060_run_ctwas_sqtl_acat_prep.log
+
+
+
+
+
+
+
+# -----------acat----------- #
+conda activate TWAS
+
+
+# Create the output directory
+mkdir -p /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/acat/acat_sqtl/
+
+
+# Create the file: 14tiss.txt
+
+
+# Run the Bash script to perform the ACAT-O analysis
+cd /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/code/
+
+****************Copy the following content into the Bash script**********************************
+#!/bin/bash
+
+tiss_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/input/tiss_list)
+echo ${tiss_list}
+
+study_list=$(cat /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/acat/study_list)
+echo ${study_list}
+
+# Run the acat_sqtl analysis
+for TISSUE in ${tiss_list}
+do
+	for STUDY in ${study_list}
+	do
+		python3 /media/desk15/iy2120/Genomic_tools/MetaXcan/software/SMulTiXcanByFeature.py \
+		--gwas_file /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/condTWAS_parse/final_metal_ad_kunkle_pgcalz_ukb/${STUDY}.txt.gz \
+		--tiss_list /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/input/tissue_lists/${TISSUE} \
+		--snp_column panel_variant_id \
+		--effect_allele_column effect_allele \
+		--non_effect_allele_column non_effect_allele \
+		--zscore_column zscore \
+		--model_db_path /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/input/combine_sqtl.db \
+		--keep_non_rsid --model_db_snp_key varID \
+		--covariance /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/input/combine_cross_intron_covar.txt.gz \
+		--grouping /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/input/combine_phenotype_groups.txt.gz GTEx_sQTL \
+		--associations /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/acat/acat_prep_sqtl/${STUDY}_sqtl_acat_input.csv SPrediXcan \
+		--cutoff_condition_number 30 \
+		--verbosity 10 \
+		--acat \
+		--output /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/output/intermediate_data/acat/acat_sqtl/${TISSUE}__${STUDY}_sqtl_acat_results.tsv
+	done
+done
+******************************************************************************
+nohup bash ./060_run_ctwas_sqtl_acat.sh > ../temp/060_run_ctwas_sqtl_acat.log &
+
+
+# Monitor the job
+tail -f ../temp/060_run_ctwas_sqtl_acat.log
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

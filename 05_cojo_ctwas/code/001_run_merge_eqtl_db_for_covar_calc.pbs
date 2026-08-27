@@ -1,0 +1,4 @@
+python3 /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/code/merge_gtexv8_mashr_predictdb.py \
+  --input_dir /media/desk15/iy2120/TWAS/Breast-cancer-Example/data/prediction_model/gtex_v8_eqtl_dbs_mashr \
+  --pattern "mashr_*.db" \
+  --output /media/desk15/iy2120/Project2026/Myproject_AD/05_cojo_ctwas/input/combine_eqtl_for_covar_calc.db

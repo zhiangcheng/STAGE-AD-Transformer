@@ -1,0 +1,14 @@
+#!/bin/bash
+
+
+## Configure the environment
+conda activate FOCUS
+cd /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/code/
+
+
+## Create the output directory
+mkdir -p /media/desk15/iy2120/Project2026/Myproject_AD/06_focus/input/focus_ready_gwas/
+
+
+## Convert the GWAS summary statistics into an input file for the FOCUS "munging" workflow
+python3 000_run_format_gwas.py
