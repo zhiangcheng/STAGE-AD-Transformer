@@ -1,4 +1,4 @@
-# stage-AD Transformer
+# STAGE-AD Transformer
 
 Workflow | [Data schema](docs/DATA_SCHEMA.md) | [Output reference](docs/OUTPUTS.md)
 
