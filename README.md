@@ -1,6 +1,6 @@
 # STAGE-AD Transformer
 
-Workflow | [Data schema](docs/DATA_SCHEMA.md) | [Output reference](docs/OUTPUTS.md)
+Workflow | [Data schema](./01_transformer_gwas/docs/DATA_SCHEMA.md) | [Output reference](./01_transformer_gwas/docs/OUTPUTS.md)
 
 stage-AD Transformer is a research pipeline for sex-aware prioritization of
 Alzheimer's disease (AD) variants, candidate genes, tissues, cell types, and
@@ -96,7 +96,7 @@ python run_pipeline.py --profile large-10m
 ```
 
 All profile parameters are visible in
-[`config/pipeline_profiles.json`](config/pipeline_profiles.json). CLI commands
+[`config/pipeline_profiles.json`](./01_transformer_gwas/config/pipeline_profiles.json). CLI commands
 printed by the runner can also be copied and executed one at a time.
 
 ## Repository layout
@@ -115,12 +115,12 @@ printed by the runner can also be copied and executed one at a time.
 ```
 
 Generated data, checkpoints, predictions, metrics, and figures are ignored by
-Git. See [`docs/OUTPUTS.md`](docs/OUTPUTS.md) for the full artifact map.
+Git. See [`docs/OUTPUTS.md`](./01_transformer_gwas/docs/OUTPUTS.md) for the full artifact map.
 
 ## Using real data
 
 Real inputs must follow the column contract in
-[`docs/DATA_SCHEMA.md`](docs/DATA_SCHEMA.md). Most importantly:
+[`docs/DATA_SCHEMA.md`](./01_transformer_gwas/docs/DATA_SCHEMA.md). Most importantly:
 
 1. harmonize alleles, genome build, chromosome labels, and effect directions;
 2. create candidate-gene, tissue, and cell-type feature blocks in the documented
@@ -144,9 +144,9 @@ python -m pytest -q
 
 Citation: .
 License: The code is released under the MIT License; see
-[`LICENSE`](LICENSE).
+[`LICENSE`](./01_transformer_gwas/LICENSE).
 
 ## Contributing
 
 Bug reports and focused pull requests are welcome. Please read
-[`CONTRIBUTING.md`](CONTRIBUTING.md) before submitting changes.
+[`CONTRIBUTING.md`](./01_transformer_gwas/CONTRIBUTING.md) before submitting changes.
