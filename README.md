@@ -14,7 +14,9 @@ multi-task Transformer.
 
 ## Workflow
 
-[](./workflow.png)
+<p align="center">
+  <img src="./workflow.png" alt="workflow" width="900">
+</p>
 | Step | Script | Main input | Main output |
 |---:|---|---|---|
 | 00 | `scripts/00_check_dependencies.py` | Python environment | dependency report |
